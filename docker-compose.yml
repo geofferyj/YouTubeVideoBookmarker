@@ -7,9 +7,9 @@ services:
      image: nginx:1.13-alpine
      container_name: nginx01
      ports:
-       - "8000:8000"
+       - "80:8000"
      volumes:
-       - ./project:/src
+       - ./project:/src:ro
        - ./config/nginx:/etc/nginx/conf.d
      depends_on:
        - web
@@ -20,7 +20,7 @@ services:
      depends_on:
        - db
      volumes:
-       - ./project:/src
+       - ./project:/src:ro
      expose:
        - "8000"
      restart: always

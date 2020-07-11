@@ -7,8 +7,7 @@ services:
      image: nginx:1.13-alpine
      container_name: nginx01
      ports:
-       - "80:8000"
-       - "443:8000"
+       - "8000:8000"
      volumes:
        - ./project:/src
        - ./config/nginx:/etc/nginx/conf.d

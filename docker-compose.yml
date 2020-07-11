@@ -8,8 +8,9 @@ services:
      container_name: nginx01
      ports:
        - "80:8000"
+       - "443:8000"
      volumes:
-       - ./project:/src:ro
+       - ./project:/src
        - ./config/nginx:/etc/nginx/conf.d
      depends_on:
        - web
@@ -20,7 +21,7 @@ services:
      depends_on:
        - db
      volumes:
-       - ./project:/src:ro
+       - ./project:/src
      expose:
        - "8000"
      restart: always

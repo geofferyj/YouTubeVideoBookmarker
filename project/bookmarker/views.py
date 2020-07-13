@@ -26,6 +26,7 @@ def index(request):
         blocked = vdata.blocked
         
     elif request.method == 'POST':
+        blocked = ''
 
         v = request.GET['v'][-11:]
         timestamps = request.POST.get('timestamps').strip()
@@ -76,6 +77,7 @@ def secret(request, link):
         #     vdata.save()
         
     elif request.method == 'POST':
+        blocked = ''
 
         v = s_link.video.vid
         vdata = VideoData.objects.get(pk=v)

@@ -1,6 +1,6 @@
 import os  
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 SECRET_KEY = 'g3wxnr5%u=w@!+lfoy+xdq@813p-4p@gfaoz5tuma=-2z@*p@0'
 # SECRET_KEY = os.getenv('MYSITE_SECRET_KEY', '')

@@ -1,10 +1,8 @@
+import uuid, requests
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm
-from bookmarker.models import VideoData
-from bookmarker.forms import SignUpForm
-
+from django.conf import settings
+from django.contrib import messages
+from bookmarker.models import VideoData, SecretLink
 
 
 
@@ -12,7 +10,6 @@ def index(request):
     video = None
     timestamps = ''
     blocked = ''
-    user = None
 
     if request.method == 'GET' and request.GET.get('v'):
 
@@ -21,48 +18,81 @@ def index(request):
         try:
             vdata = VideoData.objects.get(pk=v)
         except VideoData.DoesNotExist:
-            vdata = VideoData(vid=v, timeStamps=timestamps, user=user, blocked=blocked)
+            vdata = VideoData(vid=v, timeStamps=timestamps, blocked=blocked)
             vdata.save()
         
         video = vdata.vid
-        user = vdata.user
         timestamps = vdata.timeStamps
         blocked = vdata.blocked
         
     elif request.method == 'POST':
 
         v = request.GET['v'][-11:]
-        vdata = VideoData.objects.get(pk=v)
+        timestamps = request.POST.get('timestamps').strip()
+        recaptcha_response = request.POST.get('g-recaptcha-response')
+        data = {
+            'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
+            'response': recaptcha_response }
+        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+        result = r.json()
 
         if request.POST.get('blocked'):
-
             blocked = 'checked'
+        
+        vdata = VideoData.objects.get(pk=v)
+        
+        if result['success']:
+            vdata.timeStamps = timestamps
+            vdata.blocked = blocked
+            vdata.save()
+            video = vdata.vid
+            messages.success(request, 'success!')
+        else:
+            messages.error(request, 'Invalid reCAPTCHA. Please try again.')
 
-        new_time_stamp = request.POST.get('timestamps').strip()
-        new_time_stamp = set(new_time_stamp.split(','))
-        timestamps = ','.join(new_time_stamp)
-        vdata.timeStamps = timestamps
-        vdata.blocked = blocked
-        vdata.save()
-        video = vdata.vid
-        user = vdata.user
-        timestamps = vdata.timeStamps
         url = f"{request.path_info}?v={v}"
         return redirect(url)
 
-    return render(request, 'bookmarker/index.html',{'video': video, 'timestamps':timestamps, 'user':request.user, 'blocked':blocked})
+    return render(request, 'bookmarker/index.html',{'video': video, 'timestamps':timestamps, 'hidden_page': False, 'blocked':blocked})
 
 
 def red(request):
     return redirect(index)
 
 
-def signup(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')
-    else:
-        form = SignUpForm()
-    return render(request, 'bookmarker/register.html', {'form': form})
+def secret(request, link):
+
+    s_link = SecretLink.objects.get(link=link)
+
+    if request.method == 'GET':
+        v = s_link.video.vid
+        timestamps = s_link.video.timeStamps
+        blocked = s_link.video.blocked
+
+        # try:
+        #     vdata = VideoData.objects.get(pk=v)
+        # except VideoData.DoesNotExist:
+        #     vdata = VideoData(vid=v, timeStamps=timestamps, blocked=blocked)
+        #     vdata.save()
+        
+    elif request.method == 'POST':
+
+        v = s_link.video.vid
+        vdata = VideoData.objects.get(pk=v)
+
+        if request.POST.get('blocked'):
+            blocked = 'checked'
+
+        timestamps = request.POST.get('timestamps').strip()
+        vdata.timeStamps = timestamps
+        vdata.blocked = blocked
+        vdata.save()
+        video = vdata.vid
+        # url = f"{request.path_info}?v={v}"
+        print('\n\n\n\n\n\n', request.path_info, '\n\n\n\n\n\n')
+        return redirect(request.path_info)
+
+    return render(request, 'bookmarker/index.html',{'video': v, 'timestamps': timestamps, 'hidden_page':True, 'blocked': blocked})
+
+
+# def admin(request):

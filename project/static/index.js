@@ -72,8 +72,8 @@ $(window).on("load", function () {
 
     function play() {player.play()  }
     player.on('statechange', (event) => {
-        if (player.playing) {
-            annyang.pause();
+        if (event.detail.code === 1) {
+            annyang.abort();
             var ts = roundNumber(listOfStamps.pop());
             t = setInterval(function () {
 
@@ -83,9 +83,10 @@ $(window).on("load", function () {
 
             }, 500);
 
-        } else if (player.paused) {
+        } else if (event.detail.code === 2) {
             clearInterval(t);
-            annyang.resume();
+            annyang.start();
+            console.log(annyang)
 
 
         }

@@ -7,12 +7,13 @@ SECRET_KEY = 'g3wxnr5%u=w@!+lfoy+xdq@813p-4p@gfaoz5tuma=-2z@*p@0'
 
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
     'bookmarker',
     
 ]
@@ -70,5 +71,10 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
+YOUTUBE_DATA_API_KEY = 'AIzaSyBnD826tz_SelYOn6FtJHGPeGqMMKiIjuI'
+LOGIN_REDIRECT_URL = 'admin_page'
+LOGOUT_REDIRECT_URL = 'index'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+LOGIN_URL = 'login'

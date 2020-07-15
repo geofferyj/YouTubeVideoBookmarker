@@ -1,0 +1,85 @@
+{% extends 'bookmarker/base.html' %}
+{% load static %}
+
+{% block main %}
+<div class="container-fluid">
+    {% for video in videos %}
+    <div class="card mb-3" style="max-width: 75%;">
+        <div class="row no-gutters">
+            {% csrf_token %}
+            <div class="col-md-4">
+                <img src="{{video.thumbnail}}" class="card-img" alt="video.title">
+            </div>
+
+            <div class="col-md-8 ">
+                <div class="card-body">
+                    <input type="hidden" name="video_id" class="video_id" value="{{video.id}}">
+                    <h5 class="card-title video_title">{{video.title}}</h5>
+                    <!-- <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
+                        additional content. This content is a little bit longer.</p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p> -->
+                    <div class="input-group mw-75 ">
+                        <input type="number" class="form-control" value=0 placeholder="Days" min="0" max="365">
+                        <input type="number" class="form-control" value=0 placeholder="Hours" min="0" max="24">
+                        <input type="number" class="form-control" value=0 placeholder="Minutes" min="0" max="60">
+                        <div class="input-group-append">
+                            <button class="btn btn-success">Generate</button>
+                        </div>
+                    </div>
+                    <p class="mt-2 link" id="link"><a href=""></a></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock main %}
+
+
+
+{% block script %}
+<script>
+    $(document).ready(function () {
+        $('.container-fluid').click('button', function (e) {
+
+            if (e.target.tagName == 'BUTTON') {
+                console.log($(e.target).text())
+                var days = $(e.target).parent().siblings('input[placeholder=Days]').val()
+                var hours = $(e.target).parent().siblings('input[placeholder=Hours]').val()
+                var minutes = $(e.target).parent().siblings('input[placeholder=Minutes]').val()
+
+                console.log(days, hours, minutes)
+
+                // e.preventDefault();
+
+                var btn = $(e.target).parent().parent()
+                $.ajax({
+                    type: "post",
+                    url: "{% url 'generate' %}",
+                    data: {
+                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                        video_id: btn.siblings('.video_id').val(),
+                        days: days,
+                        hours: hours,
+                        minutes: minutes
+                    },
+                    success: function (response) {
+                        console.log(btn.siblings('#link'))
+                        btn.siblings('#link').children('a').text(response.link)
+                        btn.siblings('#link').children('a').attr('href', `/secret/${response.link}`)
+
+                    },
+                    error: function (e) {
+                        console.log(e.error)
+                    }
+                });
+            }
+
+        });
+    });
+</script>
+{% endblock script %}

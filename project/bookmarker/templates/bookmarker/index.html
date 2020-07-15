@@ -1,157 +1,94 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'bookmarker/base.html' %}
+{% block main %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+<form action="" method="get" style="padding-bottom: 1rem; justify-content: center;">
 
-    <!-- <script src="https://www.youtube.com/iframe_api" async></script> -->
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.6.2/plyr.css" />
-    <link rel="stylesheet" href="{% static 'styles.css' %}" />
+    <div class="input-group">
+        {% if not hidden_page %}
+        <input id="v" name="v" type="text" class="form-control" placeholder="Paste video Url here">
+        <div class="input-group-append">
+            <button id="v_btn" disabled class="btn btn-danger" type="submit">
+                <i class="fas fa-play"></i>
+            </button>
+        </div>
+        {% endif%}
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
-    <script src="https://cdn.plyr.io/3.6.2/plyr.polyfilled.js"></script>
-    <script src='https://www.google.com/recaptcha/api.js'></script>
-    <script>
-    function onSubmit() {
-      document.getElementById("submitTimeStamp").submit();
-    }
-  </script>
-</head>
+    </div>
+</form>
 
-<body>
 
-    <div class="container">
-        <div class="row">
+<div class="row">
+    <div class="col-md-9">
 
-            <div class="col-md-12">
-
-                <div class="page-header">
-                    <div class="container">
-                        {% for message in messages %}
-                          <div class="alert {{ message.tags }} alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                            {{ message }}
-                          </div>
-                        {% endfor %}
-                        
-                      </div>
-                    <header>
-                        <h1>
-                            YouTube Video Bookmarker
-                        </h1>
-
-                        <form action="" method="get" style="padding-bottom: 1rem; justify-content: center;">
-
-                            <div class="input-group">
-                                {% if not hidden_page %}
-                                <input id="v" name="v" type="text" class="form-control"
-                                    placeholder="Paste video Url here">
-                                <div class="input-group-append">
-                                    <button id="v_btn" disabled class="btn btn-danger" type="submit">
-                                        <i class="fas fa-play"></i>
-                                    </button>
-                                </div>
-                                {% endif%}
-
-                            </div>
-                        </form>
-
-                    </header>
-                </div>
-
+        <div class="embed-responsive embed-responsive-16by9">
+            <div class="embed-responsive-item">
+                <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="{{video}}"></div>
             </div>
-
         </div>
 
-        <div class="row">
-            <div class="col-md-9">
+        {% if hidden_page %}
+        <button type="button" class="btn btn-dark" id="addTimeStamp">add current time</button>
+        {%else%}
+            {% if blocked %}
+            <button type="button" class="btn btn-dark" id="addTimeStamp" disabled data-toggle="tooltip" data-placement="top"
+                title="Video Locked">add current time</button>
 
-                <div class="embed-responsive embed-responsive-16by9">
-                    <div class="embed-responsive-item">
-                        <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="{{video}}"></div>
-                    </div>
-                </div>
+            {% else %}
+            <button type="button" class="btn btn-dark" id="addTimeStamp">add current time</button>
 
+            {% endif %}
+        {% endif %}
+
+    </div>
+    <div class="col-md-3">
+
+        <div class="form-group">
+            <form action="" method="POST" id="submitTimeStamp">
+                {% csrf_token %}
                 {% if hidden_page %}
-                <button type="button" class="btn btn-dark" id="addTimeStamp">add current time</button>
-                {%else%}
-                {% if blocked %}
-                <button type="button" class="btn btn-dark" id="addTimeStamp" disabled data-toggle="tooltip"
-                    data-placement="top" title="Video Locked">add current time</button>
+
+                <label for="timestamps">Time Stamps</label>
+                <textarea class="form-control" id="timestamps" name="timestamps" rows="10">{{timestamps}}</textarea>
+
+                <label for="blocked">Block Video</label>
+                <input type="checkbox" name="blocked" id="blocked" {{blocked}}> </br>
+
+                <button class="btn btn-dark g-recaptcha" data-sitekey="6LcxrbAZAAAAAGRIVwQ2GaF4dzztHIFm7El9Z9Yo"
+                    data-callback="onSubmit" type="submit">Update video</button>
 
                 {% else %}
-                <button type="button" class="btn btn-dark" id="addTimeStamp">add current time</button>
+
+                <label for="timestamps">Time Stamps</label>
+                <textarea {% if blocked %}readonly{% endif %} class="form-control" id="timestamps" name="timestamps"
+                    rows="10">{{timestamps}}</textarea>
+
+
+                {% if video %}
+
+                {% if blocked %}
+                <button type="button" class="btn btn-dark" disabled data-toggle="tooltip" data-placement="bottom"
+                    title="Video Locked">Update video</button>
+                {% else %}
+                <button class="btn btn-dark g-recaptcha" data-sitekey="6LcxrbAZAAAAAGRIVwQ2GaF4dzztHIFm7El9Z9Yo"
+                    data-callback="onSubmit" type="submit">Update video</button>
+                {% endif %}
+
+
+
+                {% else %}
+
+                <button type="button" class="btn btn-dark">Update video</button>
 
                 {% endif %}
+
+
                 {% endif %}
 
-            </div>
-            <div class="col-md-3">
 
-                <div class="form-group">
-                    <form action="" method="POST" id="submitTimeStamp">
-                        {% csrf_token %}
-                        {% if hidden_page %}
-
-                            <label for="timestamps">Time Stamps</label>
-                            <textarea class="form-control" id="timestamps" name="timestamps"
-                                rows="10">{{timestamps}}</textarea>
-
-                            <label for="blocked">Block Video</label>
-                            <input type="checkbox" name="blocked" id="blocked" {{blocked}}> </br>
-
-                            <button class="btn btn-dark g-recaptcha" data-sitekey="6LcxrbAZAAAAAGRIVwQ2GaF4dzztHIFm7El9Z9Yo"
-                            data-callback="onSubmit" type="submit" >Update video</button>
-
-                        {% else %}
-
-                            <label for="timestamps">Time Stamps</label>
-                            <textarea {% if blocked %}readonly{% endif %} class="form-control" id="timestamps"
-                                name="timestamps" rows="10">{{timestamps}}</textarea>
-
-
-                            {% if video %}
-
-                                {% if blocked %}
-                                    <button type="button" class="btn btn-dark" disabled data-toggle="tooltip"
-                                    data-placement="bottom" title="Video Locked">Update video</button>
-                                {% else %}
-                                    <button class="btn btn-dark g-recaptcha" data-sitekey="6LcxrbAZAAAAAGRIVwQ2GaF4dzztHIFm7El9Z9Yo"
-                                    data-callback="onSubmit" type="submit" >Update video</button>
-                                {% endif %}
-                                
-
-
-                            {% else %}
-
-                                <button type="button" class="btn btn-dark">Update video</button>
-
-                            {% endif %}
-
-
-                        {% endif %}
-
-
-                    </form>
-                </div>
-
-            </div>
+            </form>
         </div>
 
     </div>
-    <script src="https://kit.fontawesome.com/bb201e8e44.js" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-    <script src="{% static 'index.js' %}"></script>
+</div>
 
-</body>
-
-</html>
+{% endblock main %}

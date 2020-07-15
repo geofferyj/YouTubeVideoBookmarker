@@ -2,6 +2,7 @@ FROM python:3.7-alpine
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV PRODUCTION True
+ENV DJANGO_SUPERUSER_PASSWORD administrator
  
 RUN apk update && \
     apk add --virtual build-deps gcc python3-dev musl-dev && \

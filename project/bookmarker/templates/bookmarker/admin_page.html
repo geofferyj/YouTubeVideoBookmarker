@@ -19,9 +19,18 @@
                         additional content. This content is a little bit longer.</p>
                     <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p> -->
                     <div class="input-group mw-75 ">
-                        <input type="number" class="form-control" value=0 placeholder="Days" min="0" max="365">
-                        <input type="number" class="form-control" value=0 placeholder="Hours" min="0" max="24">
-                        <input type="number" class="form-control" value=0 placeholder="Minutes" min="0" max="60">
+                    <div class="input-group-append">
+                        <label class="input-group-text" for="days">Days</label>
+                    </div>
+                        <input type="number" class="form-control" value=0 id="days" placeholder="Days" min="0" max="365">
+                    <div class="input-group-append">
+                        <label class="input-group-text" for="hours">Hours</label>
+                    </div>
+                        <input type="number" class="form-control" value=0 id="hours" placeholder="Hours" min="0" max="24">
+                         <div class="input-group-append">
+                        <label class="input-group-text" for="mins">Minutes</label>
+                    </div>
+                        <input type="number" class="form-control" value=0 id="mins" placeholder="Minutes" min="0" max="60">
                         <div class="input-group-append">
                             <button class="btn btn-success">Generate</button>
                         </div>

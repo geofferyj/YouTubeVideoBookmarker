@@ -6,13 +6,13 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    path('watch/', index, name='index'),
     path("", red, name="red"),
-    path("secret/<slug:link>/", get_secret_page, name="secret"),
-    path("generate/", generate_secret_link, name="generate" ),
+    path('watch/', index, name='index'),
     path("admin/", admin_page, name="admin_page"),
+    path("generate/", generate_secret_link, name="generate" ),
     path("login/", LoginView.as_view(template_name='bookmarker/login.html'), name="login"),
     path("logout/", LogoutView.as_view(template_name='bookmarker/index.html'), name="logout"),
+    path("<slug:link>/", get_secret_page, name="secret"),
 
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

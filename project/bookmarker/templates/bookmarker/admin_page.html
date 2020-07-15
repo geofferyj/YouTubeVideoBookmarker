@@ -3,10 +3,31 @@
 
 {% block main %}
 <div class="container-fluid">
+
+    <div class="input-group mw-75 ">
+        {% csrf_token %}
+        <div class="input-group-append">
+            <label class="input-group-text" for="days">Days</label>
+        </div>
+        <input type="number" class="form-control" value=0 id="days" placeholder="Days" min="0" max="365">
+        <div class="input-group-append">
+            <label class="input-group-text" for="hours">Hours</label>
+        </div>
+        <input type="number" class="form-control" value=0 id="hours" placeholder="Hours" min="0" max="24">
+        <div class="input-group-append">
+            <label class="input-group-text" for="mins">Minutes</label>
+        </div>
+        <input type="number" class="form-control" value=0 id="mins" placeholder="Minutes" min="0" max="60">
+        <div class="input-group-append">
+            <button class="btn btn-success">Generate</button>
+        </div>
+    </div>
+    <p class="mt-2 link" id="link"><a href="" target="_blank"></a></p>
+
     {% for video in videos %}
     <div class="card mb-3" style="max-width: 75%;">
         <div class="row no-gutters">
-            {% csrf_token %}
+            
             <div class="col-md-4">
                 <img src="{{video.thumbnail}}" class="card-img" alt="video.title">
             </div>
@@ -15,27 +36,6 @@
                 <div class="card-body">
                     <input type="hidden" name="video_id" class="video_id" value="{{video.id}}">
                     <h5 class="card-title video_title">{{video.title}}</h5>
-                    <!-- <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
-                        additional content. This content is a little bit longer.</p>
-                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p> -->
-                    <div class="input-group mw-75 ">
-                    <div class="input-group-append">
-                        <label class="input-group-text" for="days">Days</label>
-                    </div>
-                        <input type="number" class="form-control" value=0 id="days" placeholder="Days" min="0" max="365">
-                    <div class="input-group-append">
-                        <label class="input-group-text" for="hours">Hours</label>
-                    </div>
-                        <input type="number" class="form-control" value=0 id="hours" placeholder="Hours" min="0" max="24">
-                         <div class="input-group-append">
-                        <label class="input-group-text" for="mins">Minutes</label>
-                    </div>
-                        <input type="number" class="form-control" value=0 id="mins" placeholder="Minutes" min="0" max="60">
-                        <div class="input-group-append">
-                            <button class="btn btn-success">Generate</button>
-                        </div>
-                    </div>
-                    <p class="mt-2 link" id="link"><a href=""></a></p>
                 </div>
             </div>
 
@@ -56,12 +56,10 @@
         $('.container-fluid').click('button', function (e) {
 
             if (e.target.tagName == 'BUTTON') {
-                console.log($(e.target).text())
                 var days = $(e.target).parent().siblings('input[placeholder=Days]').val()
                 var hours = $(e.target).parent().siblings('input[placeholder=Hours]').val()
                 var minutes = $(e.target).parent().siblings('input[placeholder=Minutes]').val()
 
-                console.log(days, hours, minutes)
 
                 // e.preventDefault();
 
@@ -77,9 +75,8 @@
                         minutes: minutes
                     },
                     success: function (response) {
-                        console.log(btn.siblings('#link'))
                         btn.siblings('#link').children('a').text(response.link)
-                        btn.siblings('#link').children('a').attr('href', `/secret/${response.link}`)
+                        btn.siblings('#link').children('a').attr('href',`/${response.link}`)
 
                     },
                     error: function (e) {

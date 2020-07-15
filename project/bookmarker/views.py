@@ -50,10 +50,8 @@ def index(request):
             video_data.blocked = blocked
             video_data.save()
             video = video_data.vid
-            messages.success(request, 'success!')
-        else:
-            messages.error(request, 'Invalid reCAPTCHA. Please try again.')
-
+        
+            
         url = f"{request.path_info}?v={video_id}"
         return redirect(url)
 
@@ -87,8 +85,6 @@ def get_secret_page(request, link):
         video_data.blocked = blocked
         video_data.save()
         video_id = video_data.vid
-        # url = f"{request.path_info}?v={v}"
-        print('\n\n\n\n\n\n', request.path_info, '\n\n\n\n\n\n')
         return redirect(request.path_info)
 
     return render(request, 'bookmarker/index.html',{'video': video_id, 'timestamps': timestamps, 'hidden_page':True, 'blocked': blocked})
@@ -143,7 +139,6 @@ def admin_page(request):
         video_data = {
             'title' : result['snippet']['title'],
             'id' : result['id'],
-            # 'duration' : int(parse_duration(result['contentDetails']['duration']).total_seconds() // 60),
             'thumbnail' : result['snippet']['thumbnails']['high']['url']
         }
 

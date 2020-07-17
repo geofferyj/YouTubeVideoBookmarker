@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
+# defines the urls (links) 
 urlpatterns = [
     path("", red, name="red"),
     path('watch/', index, name='index'),
@@ -14,6 +15,6 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(template_name='bookmarker/index.html'), name="logout"),
     path("<slug:link>/", get_secret_page, name="secret"),
 
-]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

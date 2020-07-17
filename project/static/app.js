@@ -109,17 +109,16 @@ $(window).on("load", function () {
 
     player.on('statechange', (event) => {
         if (event.detail.code === 1) {
-            var ts = roundNumber(listOfStamps.pop());
             recognition.stop()
 
             t = setInterval(function () {
+                listOfStamps.forEach(function(item,index){
+                    if (roundNumber(player.currentTime) === item && item !== 0){
+                        pause()
+                    }
+                });
 
-                if (roundNumber(player.currentTime) === ts && ts !== 0) {
-                    pause()
-
-                }
-
-            }, 500);
+            }, 1000);
 
         } else if (event.detail.code === 2) {
             clearInterval(t);

@@ -1,6 +1,6 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path, include
-from bookmarker.views import index, red, get_secret_page, generate_secret_link, admin_page
+from bookmarker.views import index, red, get_secret_page, generate_secret_link, admin_page,recog
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -8,6 +8,7 @@ from django.conf.urls.static import static
 # defines the urls (links) 
 urlpatterns = [
     path("", red, name="red"),
+    path("recog/", recog),
     path('watch/', index, name='index'),
     path("admin/", admin_page, name="admin_page"),
     path("generate/", generate_secret_link, name="generate" ),

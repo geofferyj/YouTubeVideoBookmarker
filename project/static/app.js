@@ -1,14 +1,7 @@
 $(window).on("load", function () {
-
-
-    var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
-    var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
-    var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
-    var recognition = new SpeechRecognition();
-    var listOfStamps = document.getElementById('timestamps').value.split(',').map(Number).sort(function (a, b) {
-        return b - a
-    });
-    var stamps = (document.getElementById('timestamps').value == '') ? [] : document.getElementById('timestamps').value.split(',').map(Number).sort(function (a, b) {
+    let timestamps = document.getElementById('timestamps')
+    let listOfStamps = timestamps.value.split(',').map(Number).sort((a, b) => a - b);
+    let stamps = (timestamps.value == '' )? [] : timestamps.value.split(',').map(Number).sort(function (a, b) {
         return b - a
     });
     const input = document.getElementById("v");
@@ -20,41 +13,17 @@ $(window).on("load", function () {
     let t;
     window.player = player;
 
-    recognition.onresult = function (event) {
-        var rs = event.results[0][0].transcript.toLowerCase()
-        console.log(rs)
+    if (annyang) {
+        var commands = {
+            'play': play,
+            'continue': play,
+            'resume': play,
+            'unpause': play
+        };
 
-        switch (rs) {
-            case 'play':
-                play()
-                break;
-            case 'continue':
-                play()
-                break;
-            case 'resume':
-                play()
-                break;
-            case 'start':
-                play()
-                break;
-            case 'unpause':
-                play()
-                break;
-            default:
-                break;
-        }
-
-    }
-
-
-
-
-    recognition.onspeechend = function () {
-        recognition.stop();
-    }
-
-    recognition.onerror = function (event) {
-        console.log(event.error)
+        
+        annyang.start()
+        
     }
 
     function addTime() {
@@ -63,9 +32,7 @@ $(window).on("load", function () {
 
         if (!(stamps.includes(timestamp) || timestamp == 0)) {
             stamps.push(timestamp)
-            document.getElementById("timestamps").value = stamps.sort(function (a, b) {
-                return b - a
-            }).join()
+            timestamps.value = stamps.sort((a, b) => a - b).join()
         }
 
     }
@@ -108,12 +75,12 @@ $(window).on("load", function () {
     }
 
     player.on('statechange', (event) => {
-        if (event.detail.code === 1) {
-            recognition.stop()
 
+        if (event.detail.code === 1) {
+            annyang.abort()
             t = setInterval(function () {
-                listOfStamps.forEach(function(item,index){
-                    if (roundNumber(player.currentTime) === item && item !== 0){
+                listOfStamps.forEach(function (item, index) {
+                    if (roundNumber(player.currentTime) === item && item !== 0) {
                         pause()
                     }
                 });
@@ -122,8 +89,8 @@ $(window).on("load", function () {
 
         } else if (event.detail.code === 2) {
             clearInterval(t);
-            recognition.start()
-
+            annyang.addCommands(commands);
+            annyang.resume();
         }
     })
 

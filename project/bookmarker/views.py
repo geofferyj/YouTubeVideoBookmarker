@@ -182,3 +182,6 @@ def admin_page(request):
         videos.append(video_data)
 
     return render(request, 'bookmarker/admin_page.html',{'videos': videos,})
+
+def recog(request):
+    return render(request, 'bookmarker/testt.html')

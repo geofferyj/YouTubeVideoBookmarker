@@ -1,7 +1,7 @@
 $(window).on("load", function () {
     let timestamps = document.getElementById('timestamps')
     let listOfStamps = timestamps.value.split(',').map(Number).sort((a, b) => a - b);
-    let stamps = (timestamps.value == '' )? [] : timestamps.value.split(',').map(Number).sort(function (a, b) {
+    let stamps = (timestamps.value == '') ? [] : timestamps.value.split(',').map(Number).sort(function (a, b) {
         return b - a
     });
     const input = document.getElementById("v");
@@ -11,7 +11,11 @@ $(window).on("load", function () {
     const player = new Plyr('#player', {});
     let video_id = $("#video_id").val()
     let t;
+    let hit = 0;
     window.player = player;
+
+
+
 
     if (annyang) {
         var commands = {
@@ -21,9 +25,9 @@ $(window).on("load", function () {
             'unpause': play
         };
 
-        
+
         annyang.start()
-        
+
     }
 
     function addTime() {
@@ -71,17 +75,23 @@ $(window).on("load", function () {
     }
 
     function pause() {
+        
         player.pause();
+        // hit++
+        
     }
 
     player.on('statechange', (event) => {
-
+       
+        
         if (event.detail.code === 1) {
             annyang.abort()
             t = setInterval(function () {
                 listOfStamps.forEach(function (item, index) {
                     if (roundNumber(player.currentTime) === item && item !== 0) {
+                        hit++
                         pause()
+
                     }
                 });
 
@@ -94,4 +104,9 @@ $(window).on("load", function () {
         }
     })
 
+
+    if (hit == listOfStamps.length) {
+        console.log(hit)
+        console.log(listOfStamps)
+    }
 });

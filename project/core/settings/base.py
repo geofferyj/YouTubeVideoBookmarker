@@ -7,14 +7,22 @@ SECRET_KEY = 'g3wxnr5%u=w@!+lfoy+xdq@813p-4p@gfaoz5tuma=-2z@*p@0'
 
 
 INSTALLED_APPS = [
-    # 'django.contrib.admin',
+    'django.contrib.admin',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_inlinecss',
     'crispy_forms',
     'bookmarker',
+    'user_profile',
     
 ]
 
@@ -33,7 +41,9 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.normpath(os.path.join(BASE_DIR, 'templates')),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -63,6 +73,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+SITE_ID =1
+
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -74,7 +91,33 @@ USE_L10N = True
 USE_TZ = False
 
 YOUTUBE_DATA_API_KEY = 'AIzaSyBnD826tz_SelYOn6FtJHGPeGqMMKiIjuI'
-LOGIN_REDIRECT_URL = 'admin_page'
-LOGOUT_REDIRECT_URL = 'index'
+# LOGIN_REDIRECT_URL = 'admin_page'
+# LOGOUT_REDIRECT_URL = 'index'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
-LOGIN_URL = 'login'
+# LOGIN_URL = 'login'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
+MAILER_EMAIL_BACKEND = EMAIL_BACKEND  
+EMAIL_HOST = 'smtp.gmail.com'  
+EMAIL_HOST_PASSWORD = 'blessing okot'  
+EMAIL_HOST_USER = 'geofferyjoseph1@gmail.com'  
+EMAIL_PORT = 465  
+EMAIL_USE_SSL = True  
+
+# ---------------- allauth settings -------------------#
+
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS=7
+
+ACCOUNT_EMAIL_REQUIRED = True
+
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 86400
+
+ACCOUNT_LOGOUT_REDIRECT_URL = 'index'
+
+LOGIN_REDIRECT_URL = 'index'
+

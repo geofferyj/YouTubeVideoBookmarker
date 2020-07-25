@@ -3,3 +3,5 @@ gunicorn
 psycopg2-binary
 requests
 django-crispy-forms
+django-inlinecss
+django-allauth

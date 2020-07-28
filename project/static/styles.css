@@ -543,11 +543,6 @@ input:checked+.slider:before {
 
 
   
-  /* Add a red background color to the cancel button */
-  .form-container {
-    /* background-color: red; */
-  }
-  
   .select{
       position: relative;
       bottom: 4em;

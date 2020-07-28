@@ -1,3 +1,9 @@
+window.setTimeout(function () {
+    $(".alert").fadeTo(500, 0).slideUp(500, function () {
+        $(this).remove();
+    });
+}, 2000);
+
 $(window).on("load", function () {
     let timestamps = document.getElementById('timestamps')
     let listOfStamps = timestamps.value.split(',').map(Number).sort((a, b) => a - b);
@@ -62,8 +68,8 @@ $(window).on("load", function () {
         }
     }
 
-    if (video_id === 'None') {
-        document.querySelectorAll(".btn").forEach((i, j) => {
+    if (!video_id) {
+        document.querySelectorAll(".btn-d").forEach((i, j) => {
             i.disabled = true
         })
 
@@ -75,15 +81,14 @@ $(window).on("load", function () {
     }
 
     function pause() {
-        
+
         player.pause();
-        // hit++
-        
+
     }
 
     player.on('statechange', (event) => {
-       
-        
+
+
         if (event.detail.code === 1) {
             annyang.abort()
             t = setInterval(function () {
@@ -92,6 +97,27 @@ $(window).on("load", function () {
                         hit++
                         pause()
 
+                        if (hit == listOfStamps.length) {
+                            console.log(hit)
+                            console.log(listOfStamps)
+                            $.ajax({
+                                type: "post",
+                                url: "/view_counter/",
+                                data: {
+                                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                                    video_id: document.getElementById('video_id').value,
+                                    timestamps: timestamps.value
+                                },
+                                success: function (response) {
+                                    console.log(response.message)
+
+                                },
+                                error: function (e) {
+                                    console.log(e.error)
+                                }
+                            });
+
+                        }
                     }
                 });
 
@@ -105,8 +131,4 @@ $(window).on("load", function () {
     })
 
 
-    if (hit == listOfStamps.length) {
-        console.log(hit)
-        console.log(listOfStamps)
-    }
 });

@@ -1,19 +1,44 @@
 {% extends "bookmarker/base.html" %}
-{% load crispy_forms_tags %}
+{% load static %}
 {% block main %}
-    <div class="content-section">
-      <div class="media">
-        <img class="rounded-circle account-img" src="{{ user.profile.image.url }}">
-        <div class="media-body">
-          <h2 class="account-heading">{{ user.username }}</h2>
-          <p class="text-secondary">{{ user.email }}</p>
-          <p class="text-secondary">{{ user.token.amount}}</p>
-          <p class="text-secondary">{{ user.subscription.expires }}</p>
-        </div>
-      </div>
 
-      {% for video in user.videos.all %}
-      <div>{{video.vid}}</div>
-      {% endfor %}
-    </div>
+<div class="account">
+
+  <div class="account-div">
+    <img src="{% static 'images/Token icon.png' %}" class="account-img2" />
+    <p>{{ user.tokens.amount}} Tokens</p>
+    <a type="button" class=" account-btn btn btn-success" href="{% url 'store' %}">Get More</a>
+  </div>
+
+  {% if user.has_paid %}
+  <div class="account-div">
+    <img src="{% static 'images/IconNoShadow.png' %}" alt="" class="account-img" />
+    <p>Your Subscription expires </p>
+    <p>in {{user.paid_until | timeuntil}} </p>
+    <p>on {{user.paid_until}} </p>
+
+    <a type="button" class=" account-btn btn">Subscribe</a>
+  </div>
+{% else %}
+<div class="account-div">
+    <img src="{% static 'images/IconNoShadow.png' %}" alt="" class="account-img" />
+    <p> No Subscription </p>
+    <a type="button" class=" account-btn btn btn-success" href="{% url 'store' %}">Subscribe</a>
+  </div>
+
+{% endif %}
+
+
+  <div class="account-div">
+    <h1>{{user.videos.count}}</h1>
+    <p>Videos Stamped</p>
+    <a type="button" class=" account-btn btn btn-success" href="{% url 'store' %}">Stamp More</a>
+  </div>
+
+</div>
+
+<div class="footer">
+  <h5><a type="button" class=" account-btn btn btn-primary" href="">Edit Info</a> </h5>
+  <h5><a type="button" class=" account-btn btn btn-primary" href="{% url 'account_logout' %}">Logout</a></h5>
+</div>
 {% endblock main %}

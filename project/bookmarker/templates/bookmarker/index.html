@@ -1,47 +1,99 @@
 {% extends 'bookmarker/base.html' %}
+{% load static %}
 {% block main %}
 
-
-
-
-<div class="row">
-    <div class="col-md-9">
-        <form action="" method="get" style="padding-bottom: 1rem; justify-content: center;">
-
-            <div class="input-group">
-                <input id="v" name="v" type="text" class="form-control" placeholder="Paste video Url or id here">
-                <div class="input-group-append">
-                    <button id="v_btn" disabled class="btn btn-danger" type="submit">
-                        <i class="fas fa-play"></i>
+        <section class="top">
+            <div>
+                <form action="" class="form-input">
+                    <input id="v" name="v" type="text" class="top-input form-control" placeholder="Paste video Url or id here">
+                    <button class="btn-d btn-red" id="v_btn" disabled type="submit">
+                        <i class="fa fa-play" aria-hidden="true"></i>
                     </button>
+                </form>
+            </div>
+        </section>
+
+        <section class="grid">
+            <div class="video-grid">
+
+                {% if video.vid %}
+                    <div class="embed-responsive embed-responsive-16by9 video">
+                        <div class="embed-responsive-item">
+                            <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="{{video.vid}}"></div>
+                        </div>
+                    </div>
+                {% else %}
+                    <video controls class="video">
+                        <source src="" type="video/mp4" />
+                    </video>
+                {% endif %}
+
+                <div class="controls">
+                    <div class="manual-controls">
+                        <button class="btn-d btn-red-small text-bold">
+                            Control Options&nbsp; &nbsp;
+                        </button>
+                        <button class="btn-d btn-grey-small mr-5">Auto-Pause</button>
+                        <button class="btn-d btn-grey-small">Manual</button>
+                    </div>
+
+                    <div class="voice-controls">
+                        <button class="btn-d btn-blue-small text-bold">
+                            Unlock Voice Play
+                        </button>
+                        <button class="btn-d btn-grey-small mr-4">
+                            <img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" /> Voice
+                            Play
+                        </button>
+                        <button class="btn-d btn-grey-small">
+                            <img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" /> Voice
+                            Pause
+                        </button>
+                    </div>
                 </div>
             </div>
-        </form>
-        <div class="embed-responsive embed-responsive-16by9">
-            <div class="embed-responsive-item">
-                <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="{% if video.vid %}{{video.vid}}{% else %}None{% endif %}"></div>
+            <div class="video-description">
+                <div class="description-right">
+                    <div class="head">
+                        <h5>Video Description</h5>
+                    </div>
+                    <div class="description"> {{ description | urlizetrunc:25 | linebreaks}}</div>
+                    <!-- 
+            
+                    <ul class="lists">
+                        <li class="lists-items"><a href="">10.40.230</a> </li>
+                        <li class="lists-items"><a href="">10.40.230</a> </li>
+                        <li class="lists-items"><a href="">10.40.230</a> </li>
+                        <li class="lists-items"><a href="">10.40.230</a> </li>
+                        <li class="lists-items"><a href="">10.40.230</a> </li>
+
+                    </ul>
+                    <div class="btn-groups">
+                    <button>Add Current Time</button>
+                    <button>Submit </button>
+                    </div> -->
+                </div>
+                <div class="Pause-times" id="colorGray">
+                    <h5>Auto Pause Times</h5>
+
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider round">
+                            <p class="mt-2 ml-1 text-bold" style="font-size: 11.5px;"> ON &nbsp; OFF</p>
+                        </span>
+                    </label>
+                </div>
+
+                <span id="hh" class="head"><a href="">10.40.230</a></span>
+                <div class="last-btn">
+                    <button class="btn-d btn-grey text-medium"><span id="addTimeStamp">Add Current Time to List</span></button>
+                    <form action="" method="post" id="submitTimeStamp">
+                        {% csrf_token %}
+                        <textarea id="timestamps" name="timestamps" hidden>{{video.timestamps}}</textarea>
+                        <button class="btn-d btn-grey text-medium last g-recaptcha" data-sitekey="6LcxrbAZAAAAAGRIVwQ2GaF4dzztHIFm7El9Z9Yo"
+                        data-callback="onSubmit" type="submit">Update List</button>
+                    </form>
+                </div>
             </div>
-        </div>
-
-
-    </div>
-    <div class="col-md-3">
-
-        <div class="form-group">
-            <form action="" method="POST" id="submitTimeStamp">
-                {% csrf_token %}
-
-                <label for="timestamps">Time Stamps</label>
-                <textarea class="form-control" id="timestamps" name="timestamps" rows="10">{{video.timestamps}}</textarea>
-                <button type="button" class="btn btn-dark" id="addTimeStamp">add current time</button>
-                <button class="btn btn-dark g-recaptcha" data-sitekey="6LcxrbAZAAAAAGRIVwQ2GaF4dzztHIFm7El9Z9Yo"
-                    data-callback="onSubmit" type="submit">Update video</button>
-
-            </form>
-
-        </div>
-
-    </div>
-</div>
-
+        </section>
 {% endblock main %}

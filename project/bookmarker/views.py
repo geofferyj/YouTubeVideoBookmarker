@@ -5,12 +5,14 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 from django.utils.decorators import method_decorator
-
-from bookmarker.models import  Video, HitCounter
+from django.core.exceptions import ObjectDoesNotExist
+from bookmarker.models import Video, UserVideo, Token, PromoCode, VideoViews, ResetableViews
+from bookmarker.utilities import get_video_details
 
 # /watch
 # view for the home page
@@ -20,54 +22,56 @@ class Index(View):
 
     def __init__(self):
         self.video = {}
+        self.description = ''
 
     def return_fun(self):
         return render(self.request, 
         'bookmarker/index.html', 
-        {'video': self.video})
+        {'video': self.video, 'description': self.description })
 
     def get(self, request, *args, **kwargs):
         if request.GET.get('v'): 
 
             video_id = request.GET['v'][-11:]  
             user = request.user 
-            
-            if user.is_authenticated:
-                try:
-                    self.video = user.videos.get(vid=video_id)
-                    return self.return_fun()
-                except Video.DoesNotExist:
-                    self.video, _ = Video.objects.get_or_create(vid=video_id)
+            self.description = get_video_details(video_id).get('description')
+            self.video, _ = Video.objects.get_or_create(vid=video_id)
 
-            else:
-                    self.video, _ = Video.objects.get_or_create(vid=video_id)
-
-            
             if self.video.locked:
 
                 if user.is_authenticated:
-                    if not user.subscription.expired:
+                    
+                    try:
+                        user_video = user.videos.get(video=self.video)
+                    except ObjectDoesNotExist:
+                        user_video = None
+
+                    if user_video:
+                        return self.return_fun()
+                    elif not user.subscription.expired:
                         return self.return_fun()
                     elif user.tokens.amount >= self.video.cost:
                         user.tokens.amount -= self.video.cost
-                        user.videos.add(self.video)
                         user.tokens.save()
+                        user.videos.get_or_create(video=self.video)
                         return self.return_fun()
                     else:
-                        messages.error(request, "Sorry You need sufficient tokens or a subscription to watch this video")
+                        messages.error(request, "Sorry You need a subscription or sufficient tokens play this video\
+                                                you can get tokens by adding timestamps to available videos")
+                        return render(self.request, 'bookmarker/index.html', {'video': None, 'description': self.description })
                 else:
                     messages.error(request, "Sorry You need be logged in to watch this video")
-                    return redirect('login')
+                    return render(self.request, 'bookmarker/index.html', {'video': None, 'description': self.description })
             else:
                 return self.return_fun()
-                
         return self.return_fun()
+
 
     @method_decorator(login_required())
     def post(self, request, *args, **kwargs): 
         user = request.user
         video_id = request.GET['v'][-11:]
-        self.timestamps = request.POST.get('timestamps').strip()  # get and clean timestamps from webpage
+        timestamps = request.POST.get('timestamps').strip()  # get and clean timestamps from webpage
         
         # Begin recaptcha verification
         recaptcha_response = request.POST.get('g-recaptcha-response')
@@ -79,99 +83,97 @@ class Index(View):
 
         # if recaptcha was successful
         if result.get('success'):
-            self.video, _ = Video.objects.get_or_create(user=user, vid=video_id)
-            if not self.video.timestamps:
-                user.tokens.amount += 3
-                user.tokens.save()    
-                self.video.timestamps = self.timestamps  # 
-                self.video.save()        
-            else:
-                user.tokens.amount += 1
-                user.tokens.save()
-                self.video.timestamps = self.timestamps  # 
-                self.video.save()  
+            self.video = Video.objects.get(vid=video_id)
+            self.video.timestamps = timestamps
+            self.video.last_editor = user
+            self.video.save()
+            user.videos.get_or_create(video=self.video)
+            changed = False if self.video.timestamps == timestamps else True
+            
+            if changed:
+                self.video.rviews.count = 0
+                self.video.rviews.save()
 
             url = f"{request.path_info}?v={video_id}"  # build a path to redirect to if post operation is complete
             return redirect(url)
         else:  # if recaptcha was unsuccessful
-            messages.error(request, 'reCAPTCHA error. Please try again.')  # return an error
-        # End recaptcha verification     
+            messages.error(request, 'reCAPTCHA error. Please try again.')  # return an error    
+            url = f"{request.path_info}?v={video_id}"  # build a path to redirect to if post operation is complete
+            return redirect(url)
+            # End recaptcha verification 
 
         return self.return_fun()
     
 
 class Count(View):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'error':'supports only POST requests'}, status=400)
     def post(self, request):
         if request.is_ajax(): 
             user = request.user
-            vid = request.POST.get('vid')
-            Video = Video.objects.get(user=user, vid=vid)
+            video_id = request.POST.get('video_id')
+            video = Video.objects.get(vid=video_id)
+            timestamps = request.POST.get('timestamps').strip()
             
             if user.is_authenticated:
-                hit = HitCounter.objects.get_or_create(user=user, video=video)
-                hit.hit += 1
-                hit.save() 
-        return JsonResponse({'error':'supports only POST requests'}, status=400)
+                if not VideoViews.objects.filter(video=video, user=user).exists():
+                    VideoViews.objects.get_or_create(video=video, user=user)
+                    views = video.rviews
+                    views.count += 1
+                    views.save() 
+
+                    
+                    changed = False if video.timestamps == timestamps else True
+
+                    if video.timestamps:
+                        if (views.count >= 3) and (not changed):
+                            video.locked = True
+                            video.save()
+                            last_editor = video.last_editor
+                            last_editor.tokens.amount += 1
+                            last_editor.tokens.save()
+                        elif changed:
+                            video.rviews.count = 0
+                            video.rviews.save()
+                            
+                    return JsonResponse({'message':'success'}, status=200)
+        
+        return JsonResponse({'error':'request forbidden'}, status=403)
+
+
+class BuyToken(View):
+    def get(self, request, *args, **kwargs):
+
+
+        return render(self.request, 'bookmarker/buy_tokens.html')
+    def post(self, request):
+        if request.is_ajax(): 
+            user = request.user
+            tokens = request.POST.get('tokens', 0)
+            user.tokens.amount += int(tokens)   
+            user.tokens.save()          
+            return JsonResponse({'message':'success'}, status=200)
+        
+        return JsonResponse({'error':'request forbidden'}, status=403)
+
+
+class Subscribe(View):
+    def get(self, request, *args, **kwargs):
+        return render(self.request, 'bookmarker/subscribe.html')    
+
+    def post(self, request):
+        if request.is_ajax(): 
+            user = request.user
+            expires = datetime.today() + timedelta(days=30)
+            user.set_paid_until(expires.date()) 
+            user.save()     
+            return JsonResponse({'message':'success'}, status=200)
+        
+        return JsonResponse({'error':'request forbidden'}, status=403)
 # /
 # simply redirects all request to this route to the /watch route
 def red(request):
     return redirect('index')
-
-
-# <secret_link>/
-# view for the secret page
-def get_secret_page(request, link):
-    video_id = None
-    timestamps = ''
-    blocked = ''
-    get_object_or_404(SecretLink, link=link, expires__gte=datetime.now())  # check that the link has not expired
-
-    # if the request is a GET request
-    if request.method == 'GET' and request.GET.get('v'): 
-
-        video_id = request.GET['v'][-11:]  # extracts the last 11 characters of the youtube video url
-                                            # YouTube Video ids are 11 digits long 
-
-        # if video with this video_id exists,   
-        try:
-            video = Video.objects.get(pk=video_id)  # retrive video object and assign to video
-        except Video.DoesNotExist:  # if video with this video_id does not exist,   
-            video = Video(vid=video_id, timeStamps=timestamps, blocked=blocked)  # create video object, assign to video
-            video.save()  # save object to db
-        
-        timestamps = video.timeStamps  # timestamps to send back to the webpage
-        blocked = video.blocked  # blocked status to send back to the webpage
-    
-    #  if the request is a POST request
-    elif request.method == 'POST': 
-        video_id = request.GET['v'][-11:]
-        timestamps = request.POST.get('timestamps').strip()  # get and clean timestamps from webpage
-        video = Video.objects.get(pk=video_id)
-        if request.POST.get('blocked'):
-            blocked = 'checked'
-
-        # Begin recaptcha verification
-        recaptcha_response = request.POST.get('g-recaptcha-response')
-        data = { 'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
-                 'response': recaptcha_response 
-                }
-        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
-        result = r.json()   
-
-        # if recaptcha was successful
-        if result.get('success'):
-            video.timeStamps = timestamps  # 
-            video.blocked = blocked  # save video
-            video.save()  #
-        else:  # if recaptcha was unsuccessful
-            messages.error(request, 'reCAPTCHA error. Please try again.')  # return an error
-        # End recaptcha verification     
-            
-        url = f"{request.path_info}?v={video_id}"  # build a path to redirect to if post operation is complete
-        return redirect(url)
-
-    return render(request, 'bookmarker/index.html', {'video': video_id, 'timestamps': timestamps, 'hidden_page':True, 'blocked': blocked})
-
 
 # generate/
 # view that generates secret links for the secret page
@@ -198,9 +200,9 @@ def generate_secret_link(request):
     return JsonResponse({'error':'supports only POST requests'}, status=400)
 
 
+
+
 @login_required
-# admin/
-# view for the admin page
 def admin_page(request):
     video_ids = []
     videos = []
@@ -231,82 +233,7 @@ def admin_page(request):
 
     return render(request, 'bookmarker/admin_page.html', {'videos': videos, })
 
+class StoreView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return render(request, "bookmarker/store.html")
 
-def recog(request):
-    return render(request, 'bookmarker/testt.html')
-
-# def index(request):
-#     video = None
-#     timestamps = ''
-#     blocked = ''
-
-#     # if the request is a GET request
-#     if request.method == 'GET' and request.GET.get('v'): 
-
-#         video_id = request.GET['v'][-11:] # extracts the last 11 characters of the youtube video url
-#         user = request.user                                 # YouTube Video ids are 11 digits long 
-
-#         # if video with this video_id exists,   
-#         try:
-#             video = Video.objects.get(pk=video_id) # retrive video object and assign to video
-#         except Video.DoesNotExist: # if video with this video_id does not exist,   
-#             video = Video(vid=video_id, timeStamps=timestamps, blocked=blocked) # create video object, assign to video
-#             video.save() # save object to db
-        
-#         if video.cost:
-#             if user.is_authenticated:
-
-#                 if user.tokens.amount >= video.cost:
-#                     user.tokens.amount = user.tokens.amount - video.cost
-#                     user.tokens.save()
-#                     video = video_id 
-#                     timestamps = video.timeStamps # timestamps to send back to the webpage
-#                     blocked = video.blocked # blocked status to send back to the webpage
-#                 else:
-#                     messages.error(request, "Sorry You don't have sufficient tokens to watch this video")
-#             else:
-#                 return redirect('login')
-#         else:
-#             video = video_id
-#             timestamps = video.timeStamps # timestamps to send back to the webpage
-#             blocked = video.blocked # blocked status to send back to the webpage
-    
-#     #  if the request is a POST request
-#     elif request.method == 'POST': 
-#         if request.POST.get('blocked'):
-#             blocked = 'checked'
-#         else:
-#             video_id = request.GET['v'][-11:]
-#             timestamps = request.POST.get('timestamps').strip() # get and clean timestamps from webpage
-#             video = Video.objects.get(pk=video_id)
-#             vt = video.timeStamps
-#             user = request.user
-
-#             if not vt:
-#                 user.tokens.amount += 3
-#                 user.tokens.save()
-#             else:
-#                 user.tokens.amount += 1
-#                 user.tokens.save()
-
-#             # Begin recaptcha verification
-#             recaptcha_response = request.POST.get('g-recaptcha-response')
-#             data = { 'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
-#                     'response': recaptcha_response 
-#                     }
-#             r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
-#             result = r.json()   
-
-#             # if recaptcha was successful
-#             if result.get('success'):
-#                 video.timeStamps = timestamps  # 
-#                 video.blocked = blocked        # save video
-#                 video.save()                   #
-#             else: # if recaptcha was unsuccessful
-#                 messages.error(request, 'reCAPTCHA error. Please try again.')  # return an error
-#             # End recaptcha verification     
-                
-#             url = f"{request.path_info}?v={video_id}" # build a path to redirect to if post operation is complete
-#             return redirect(url)
-
-#     return render(request, 'bookmarker/index.html',{'video': video, 'timestamps':timestamps, 'hidden_page': False, 'blocked':blocked})

@@ -1,0 +1,84 @@
+{% extends 'bookmarker/base.html' %}
+{% load static %}
+
+{% block main %}
+
+<div class="first" id="tokenform">
+
+    <h3 class="select">Select amount</h3>
+
+    <form action="" class="form-container">
+        {%csrf_token%}
+        <input type="number" class="form-control" name="token_amount" id="token_amount" min="1" value="1">
+        <h3 class="price">$ <span id="price">10</span></h3>
+        <div id="paypal-button-container"></div>
+    </form>
+
+</div>
+
+{% endblock main %}
+
+{% block script %}
+<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD&disable-funding=credit"></script>
+<script>
+    // Render the PayPal button into #paypal-button-container
+    paypal.Buttons({
+
+        style: {
+            color: 'blue',
+            shape: 'rect',
+        },
+
+        // Set up the transaction
+        createOrder: function (data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: parseFloat(Number(document.getElementById("price")
+                            .textContent)).toFixed(2)
+                    }
+                }]
+            });
+        },
+
+        // Finalize the transaction
+        onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+                // Show a success message to the buyer
+                buyTokens()
+            });
+        }
+
+    }).render('#paypal-button-container');
+</script>
+
+<script>
+    document.getElementById('token_amount')
+        .addEventListener('input', function (e) {
+            tprice.textContent = `${e.target.value * 10}`
+        });
+
+
+    function buyTokens() {
+
+        $.ajax({
+            type: "post",
+            url: "{% url 'buy_tokens' %}",
+            data: {
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                tokens: document.getElementById("token_amount").value,
+            },
+            success: function (response) {
+                alert("Tokens Added Successfully")
+
+            },
+            error: function (e) {
+                alert("There was an error")
+            }
+
+        });
+    }
+</script>
+
+
+{% endblock script %}

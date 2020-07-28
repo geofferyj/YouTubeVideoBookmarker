@@ -6,7 +6,7 @@ MODELS:
         vid = youtube video id
         user:
             access video if:
-                they added timestamp
+                they added timestamp last
                 they used unlock tokens
                 have a subscription
         timestamps

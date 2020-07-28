@@ -1,0 +1,111 @@
+{% extends 'bookmarker/base.html' %}
+{% block main %}
+{% load static %}
+
+
+
+<section class="view">
+  <div class="store-grid">
+
+    {% comment %} Token field {% endcomment %}
+    <div class="first" id="token">
+
+      <img src="{% static 'images/Token icon.png' %}" alt="" class="store-img2" />
+      <a type="button" href="{% url 'buy_tokens' %}" class="btn btn-red2">Buy Token</a>
+      <h1 class="price">$100</h1>
+
+    </div>
+
+    
+    {% comment %} subscription field {% endcomment %}
+    <div class="first" id="sub">
+
+      <img src="{% static 'images/IconNoShadow.png' %}" alt="" class="store-img" />
+      <a class="btn btn-red2" href="{% url 'subscribe' %}">Subscribe</a>
+      <h1 class="price">$200</h1>
+
+    </div>
+
+    
+
+  </div>
+
+</section>
+
+{% comment %} Promo Code Field {% endcomment %}
+<section class="bottom">
+  <div>
+    <form action="" class="form-input">
+      <input type="url" class="top-input" placeholder="Enter Promo Code">
+      <button class="btn-red-submit">Submit </button>
+    </form>
+  </div>
+
+</section>
+{% endblock main %}
+
+{% block script %}
+
+
+<script>
+  function subForm() {
+    let subForm = document.getElementById("subform");
+    let sub = document.getElementById("sub");
+    if (subForm.style.display === "none" || subForm.style.display === "") {
+      subForm.style.display = "flex";
+      sub.style.display = "none";
+
+    } else {
+      subForm.style.display = "none";
+      sub.style.display = "flex";
+    }
+
+  }
+
+  var tprice = document.getElementById('tprice')
+
+  
+
+
+  document.getElementById('buy_now_token').addEventListener("click", (e) => {
+    e.preventDefault();
+    $.ajax({
+      type: "post",
+      url: "{% url 'buy_tokens' %}",
+      data: {
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+        tokens: document.getElementById("token_amount").value,
+      },
+      success: function (response) {
+        alert("Tokens Added Successfully")
+
+      },
+      error: function (e) {
+        alert("There was an error")
+      }
+
+    });
+  });
+
+
+  document.getElementById('buy_now_sub').addEventListener("click", (e) => {
+    e.preventDefault();
+    $.ajax({
+      type: "post",
+      url: "{% url 'subscribe' %}",
+      data: {
+        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+      },
+      success: function (response) {
+        alert("Subscription Successful")
+
+      },
+      error: function (e) {
+        alert("There was an error")
+      }
+
+    });
+  });
+
+</script>
+{% endblock script %}

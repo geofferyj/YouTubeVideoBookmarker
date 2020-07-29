@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.core.exceptions import ObjectDoesNotExist
-from bookmarker.models import Video, UserVideo, Token, PromoCode, VideoViews, ResetableViews
+from bookmarker.models import Video, UserVideo, Token, VideoViews, ResetableViews
 from bookmarker.utilities import get_video_details
 
 # /watch
@@ -177,30 +177,6 @@ def red(request):
 
 # generate/
 # view that generates secret links for the secret page
-def generate_secret_link(request):
-    
-    if request.method == 'POST' and request.is_ajax(): 
-        days = float(request.POST.get('days'))
-        hours = float(request.POST.get('hours'))
-        minutes = float(request.POST.get('minutes'))
-        link = uuid.uuid4()  # creates a string of random characters using the uuid library
-        expiring_date = datetime.now() + timedelta(days=days, hours=hours, minutes=minutes)  # current time + age of link = expiring_date
-
-        try:
-            s_link = SecretLink.objects.get(pk=1)  # ensures there is only one link at anygiven time
-            s_link.link = link  #
-            s_link.expires = expiring_date  # if link object exist update object with new info
-            s_link.save()  #
-
-        except SecretLink.DoesNotExist:  # if link object doesn't exist, create new link object with new info
-            SecretLink.objects.create(link=link, expires=expiring_date)
-            
-        response = {'link':link}
-        return JsonResponse(response, status=201)  # sends link back in JSON format
-    return JsonResponse({'error':'supports only POST requests'}, status=400)
-
-
-
 
 @login_required
 def admin_page(request):

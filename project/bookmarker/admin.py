@@ -1,16 +1,20 @@
 from django.contrib import admin
-from bookmarker.models import Token, Video, PromoCode, UserVideo, VideoViews, ResetableViews, User
+from bookmarker.models import Token, Video, UserVideo, VideoViews, ResetableViews, User
+from promo_code.admin import TokenCodeInline, SubscriptionCodeInline
+
+
+
 admin.site.register(Token)
 
 
-class PromoCodeInline(admin.TabularInline):
-    model = PromoCode.user.through
+
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'paid_until', 'has_paid',)
     inlines = [
-        PromoCodeInline,
+        TokenCodeInline, 
+        SubscriptionCodeInline,
     ]
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
@@ -19,12 +23,7 @@ class VideoAdmin(admin.ModelAdmin):
     list_editable = ["cost", 'locked',]
     search_fields = ['vid',]
 
-@admin.register(PromoCode)
-class PromoCodeAdmin(admin.ModelAdmin):
-    inlines = [
-        PromoCodeInline,
-    ]
-    exclude = ('user',)
+
 
 @admin.register(UserVideo)
 class UserVideoAdmin(admin.ModelAdmin):

@@ -2,10 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import date, datetime, timedelta
 
-CODE_PURPOSE = [
-    ('T','token'),
-    ('S', 'subscription')
-]  
 
 class User(AbstractUser):
     paid_until = models.DateField(null=True, blank=True)
@@ -62,25 +58,6 @@ class Token(models.Model):
 
     def __str__(self):
         return self.user.username
-
-class PromoCode(models.Model):
-    user = models.ManyToManyField(User, related_name='promo_codes')
-    code = models.CharField(max_length=100, primary_key=True)
-    purpose = models.CharField(max_length=10, choices=CODE_PURPOSE)
-    token_amount = models.PositiveIntegerField(default=0)
-    subscription_duration = models.PositiveIntegerField(default=0)
-    hits = models.PositiveIntegerField(default=0)
-    date_created = models.DateTimeField(auto_now_add=True)
-    duration = models.PositiveIntegerField(default=30)
-
-
-    @property
-    def expired(self):
-        expiring_date = self.date_created + timedelta(days=self.duration)  # current time + age of link = expiring_date
-        return True if expiring_date >= datetime.now() else False
-    
-    def __str__(self):
-        return self.code
     
 class ResetableViews(models.Model):
     video = models.OneToOneField(Video, on_delete=models.CASCADE, related_name='rviews')

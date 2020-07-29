@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'bookmarker',
     'user_profile',
+    'promo_code',
     
 ]
 

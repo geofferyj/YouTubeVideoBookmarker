@@ -173,7 +173,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarResponsive">
                 <ul class="navbar-nav ml-auto">
+                    {% if request.user.is_superuser %}
+                    
+                     <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'code_gen' %}" data>Promo Page</a>
+                    </li>
 
+                    {% endif %}
                     {% if request.user.is_authenticated %}
                     <li class="nav-item active">
                         <a class="nav-link" style="color: skyblue;" href="#">{{ request.user.tokens.amount }}&nbsp; Tokens</a>
@@ -209,7 +215,7 @@
 
 
     {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} role="alert">
+        <div class='alert alert-{% if message.tags == "error" %}danger{% else %}{{ message.tags }}{% endif %}' role="alert">
             {{ message }}
         </div>
     {% endfor %}

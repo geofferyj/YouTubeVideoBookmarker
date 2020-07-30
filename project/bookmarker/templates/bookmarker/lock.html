@@ -1,80 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1,
-      shrink-to-fit=no"
-    />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
+{% extends 'bookmarker/base.html' %}
+{% load static %}
+{% block main %}
+  
 
-    <title>Hands Free YouTube</title>
-
-    <!-- Bootstrap core CSS -->
-    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="vendor/bootstrap/css/style.css" rel="stylesheet" />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-      integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
-      crossorigin="anonymous"
-    />
-  </head>
-
-  <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
-      <div class="container">
-        <img src="images/Pausebubble.png" width="40px" alt="" class="mr-1" /><a
-          class="navbar-brand"
-          href="#"
-          >Hands Free YouTube</a
-        >
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarResponsive"
-          aria-controls="navbarResponsive"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="#"
-                ><span class="bg-danger p-1" style="border-radius: 60px;"
-                  >5</span
-                >
-                Tokens</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="store.html">Store</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="account.html">Account</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="index.html">Home</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Page Content -->
-    <div class="container">
       <section class="top">
         <div>
           <form action="" class="form-input">
             <input type="url" class="top-input" placeholder="Video Link Here" />
             <button class="btn-red">
-              <i class="fa fa-play" aria-hidden="true"></i>
+              <i class="fas fa-play" aria-hidden="true"></i>
             </button>
           </form>
         </div>
@@ -83,12 +17,12 @@
       <section class="grid">
         <!-- locked video section here -->
         <div class="video-grid">
-          <img src="images/LockGif.gif" alt="" class="video lock" />
+          <a href="{% url 'store' %}"><img src="{% static 'images/LockGif.gif' %}" alt="" class="video lock" /></a>
 
           <!-- Number of Token Needed to unlock -->
           <div class="description">
             <p>
-              <img src="images/PauseLock.png" width="50px" alt="" /> 1 Token
+              <img src="{% static 'images/PauseLock.png' %}" width="50px" alt="" /> 1 Token
               required to Unlock
             </p>
           </div>
@@ -101,11 +35,7 @@
           </div>
 
           <ul class="lists">
-            <li class="lists-items"><a href="">10.40.230</a></li>
-            <li class="lists-items"><a href="">10.40.230</a></li>
-            <li class="lists-items"><a href="">10.40.230</a></li>
-            <li class="lists-items"><a href="">10.40.230</a></li>
-            <li class="lists-items"><a href="">10.40.230</a></li>
+            
           </ul>
           <div class="btn-groups">
             <button>Add Current Time</button>
@@ -113,10 +43,4 @@
           </div>
         </div>
       </section>
-    </div>
-
-    <!-- Bootstrap core JavaScript -->
-    <script src="vendor/jquery/jquery.slim.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  </body>
-</html>
+{% endblock main %}

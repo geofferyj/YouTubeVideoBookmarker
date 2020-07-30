@@ -35,8 +35,9 @@
 {% comment %} Promo Code Field {% endcomment %}
 <section class="bottom">
   <div>
-    <form action="" class="form-input">
-      <input type="url" class="top-input" placeholder="Enter Promo Code">
+    <form action="{% url 'redeem' %}" method="POST" class="form-input">
+      {% csrf_token %}
+      <input type="text" name="p_code" class="top-input" placeholder="Enter Promo Code">
       <button class="btn-red-submit">Submit </button>
     </form>
   </div>

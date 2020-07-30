@@ -1,0 +1,143 @@
+{% extends 'bookmarker/base.html' %}
+{% load static %}
+
+{% block main %}
+<div class="container w-75">
+    <h2>Generate Promo Codes</h2>
+    <form actinon="" method="POST">
+        {%csrf_token%}
+        <div class="form-row">
+
+            <div class="form-group col-md-12">
+                <label for="code">Code</label>
+
+                <div class="input-group">
+                    <input type="text" class="form-control" id="code" name="code"
+                        placeholder="Enter code here or click button to generate">
+                    <div class="input-group-append">
+                        <button class="btn btn-success" id="code_gen">Generate</button>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+ 
+        <div class="form-group">
+
+            <label for="duration">Enter Duration in number of days</label>
+
+
+            <div class="input-group mw-75 ">
+                {% csrf_token %}
+                <div class="input-group-append">
+                    <label class="input-group-text" for="days">Days</label>
+                </div>
+                <input type="number" class="form-control" value=0 id="days" name="days" placeholder="Days" min="0" max="365">
+            </div>
+
+
+        </div>
+
+        <div class="form-group">
+            <label for="max_use"> Max Use: Number of times code can be used </label>
+            <input type="number" min=0 value=0 class="form-control" id="max_use" name="max_use"
+                placeholder="Enter 0 for unlimited">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-12">
+                <label for="purpose">Type</label>
+                <select id="purpose" name="purpose" class="form-control" placeholder="Select Type of Code">
+                    <option value="" disabled selected hidden>Select Type of Code</option>
+                    <option value="Token">Token</option>
+                    <option value="Subscription">Subscription</option>
+                </select>
+            </div>
+        </div>
+
+
+
+        <div id="subscription_duration" class="form-group">
+            <label for="duration">Subscription Duration in days</label>
+           
+            <div class="input-group mw-75 ">
+                {% csrf_token %}
+                <div class="input-group-append">
+                    <label class="input-group-text" for="s_days">Days</label>
+                </div>
+                <input type="number" class="form-control" value=0 id="s_days" name="s_days" placeholder="Days" min="0" max="365">
+                          
+            </div>
+
+        </div>
+
+
+        <div class="form-group" id="token_amount">
+            <label for="hits">Token Amount</label>
+            <input type="number" min=0 value=0 class="form-control" name="token_amount">
+        </div>
+
+
+        <button type="submit" class="btn account-btn btn-primary">Submit</button>
+    </form>
+
+
+
+</div>
+
+{% endblock main %}
+
+{% block script %}
+<script>
+    function randomString(len, an) {
+        an = an && an.toLowerCase();
+        var str = "",
+            i = 0,
+            min = an == "a" ? 10 : 0,
+            max = an == "n" ? 10 : 62;
+        for (; i++ < len;) {
+            var r = Math.random() * (max - min) + min << 0;
+            str += String.fromCharCode(r += r > 9 ? r < 36 ? 55 : 61 : 48);
+        }
+        return str;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        let days = document.getElementById('days')
+
+        let s_days = document.getElementById('s_days')
+
+
+        let token_field = document.getElementById('token_amount')
+        let subscription_duration = document.getElementById('subscription_duration')
+        let purpose = document.getElementById('purpose')
+        purpose.addEventListener('change', (e) => {
+
+            if (e.target.value === "Token") {
+                token_field.style.display = "block"
+                subscription_duration.style.display = "none"
+            } else if (e.target.value === "Subscription") {
+                token_field.style.display = "none"
+                subscription_duration.style.display = "block"
+            } else {
+                token_field.style.display = "none"
+                subscription_duration.style.display = "none"
+            }
+
+
+        })
+
+    })
+
+    let code = document.getElementById('code')
+    let code_gen = document.getElementById('code_gen')
+
+    code_gen.addEventListener('click', (e) => {
+        e.preventDefault()
+        console.log(randomString(8, 'an'))
+        code.value = randomString(8, 'an')
+    })
+</script>
+{% endblock script %}

@@ -1,67 +1,80 @@
 import uuid
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import View
-from promo_code.forms import TokenCodeForm, SubscriptionCodeForm
-from promo_code.models import TokenCode, SubscriptionCode
-from datetime import timedelta
+from promo_code.models import PromoCode
+from datetime import timedelta, datetime
+from django.db import IntegrityError
+from django.contrib import messages
+from promo_code.models import UserPromoCode
+from django.core.exceptions import ObjectDoesNotExist
+
+
+
 
 class CodeGen(View):
     def get(self, request, *args, **kwargs):
-        t_codes = TokenCode.objects.all()
-        s_codes = SubscriptionCode.objects.all()
-        
+        codes = PromoCode.objects.all()        
         context = {
-            "token_codes": t_codes,
-            "subscription_codes": s_codes,
+            "codes": codes,
         }
         return render(request, "promo_code/code_gen.html", context)
     
     def post(self, request, *args, **kwargs):
     
-        code_type = request.POST.get('code_type')
+        purpose = request.POST.get('purpose')
+        print(purpose)
         code = request.POST.get('code')  # creates a string of random characters using the uuid library
-        days = int(request.POST.get('days'))
-        hours = int(request.POST.get('hours'))
-        minutes = int(request.POST.get('minutes'))
-        s_days = int(request.POST.get('s_days')) if isinstance(request.POST.get('s_days'), int) else 0
-        s_hours = int(request.POST.get('s_hours')) if isinstance(request.POST.get('s_hours'), int) else 0
-        s_minutes = int(request.POST.get('s_minutes')) if isinstance(request.POST.get('s_minutes'), int) else 0
-        duration = timedelta(days=days, hours=hours, minutes=minutes)
-        hits = request.POST.get('hits')
+        max_use = float(request.POST.get('max_use')) or 0
+        duration = float(request.POST.get('days'))
+        sub_dur = float(request.POST.get('s_days')) or 0
+        token_amount = float(request.POST.get("token_amount")) or 0
+        try:
+            PromoCode.objects.create(code=code, token_amount=token_amount, dur=duration, purpose=purpose, subscription_duration=sub_dur, max_use=max_use)
+        except IntegrityError as e:
+            messages.error(request, 'Code Already exists')
+            return redirect('code_gen')
 
-        if code_type == "Token":
+                
+        return redirect('code_gen')
 
-            token_amount = request.POST.get("token_amount")
-            
-            if hits and duration:
-                TokenCode.objects.create(code=code, token_amount=token_amount, hits=hits, duration=duration)
-            elif hits and not duration:
-                TokenCode.objects.create(code=code, token_amount=token_amount, hits=hits)
-            
-            elif not hits and duration:
-                TokenCode.objects.create(code=code, token_amount=token_amount, duration=duration)
 
+class UseCode(View):
+    def post(self, request, *args, **kwargs):
+        p_code = request.POST.get('p_code')
+        user = request.user
+        try:
+            promo_code = PromoCode.objects.get(code=p_code)
+        except ObjectDoesNotExist:
+            messages.error(request, "INVALID CODE")
+            return redirect('store')
+
+        if promo_code.max_use:
+            if promo_code.times_used >= promo_code.max_use:
+                messages.error(request, "Sorry, this code has been exhausted ")
+                return redirect('profile', user.username)
+            elif promo_code.has_expired:
+                messages.error(request, "Sorry this code has expired")
+                return redirect('profile', user.username)
             else:
-                TokenCode.objects.create(code=code, token_amount=token_amount)
 
-        else:
-            sub_dur = timedelta(days=s_days, hours=s_hours, minutes=s_minutes)
+                try:
+                    UserPromoCode.objects.create(user=user, code=promo_code)
+                except IntegrityError:
+                    messages.error(request, 'Sorry You have already used this code')
+                    return redirect('profile', user.username)
+                
+                if promo_code.purpose == 'Token':
+                    user.tokens.amount += promo_code.token_amount
+                    user.tokens.save()
+                    messages.success(request, f"Code Redeemed, {promo_code.token_amount} tokens added, you now have {user.tokens.amount} tokens!")
+                    return redirect('profile', user.username)
 
-            if hits and duration:
-                SubscriptionCode.objects.create(code=code, subscription_duration=sub_dur, hits=hits, duration=duration)
-            elif hits and not duration:
-                SubscriptionCode.objects.create(code=code, subscription_duration=sub_dur, hits=hits)
-            
-            elif not hits and duration:
-                SubscriptionCode.objects.create(code=code, subscription_duration=sub_dur, duration=duration)
-
-            else:
-                SubscriptionCode.objects.create(code=code, subscription_duration=sub_dur)
-
-           
-            
-        return render(request, "promo_code/code_gen.html")
-
+                elif promo_code.purpose == 'Subscription':
+                    expires = datetime.now() + timedelta(promo_code.subscription_duration)
+                    user.subscription.set_paid_until(expires) 
+                    user.subscription.save()
+                    messages.success(request, f"Code Redeemed, Your subscription has been extended by {promo_code.subscription_duration} days!")
+                    return redirect('profile', user.username)
 
 
 

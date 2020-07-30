@@ -3,7 +3,7 @@ https://cloud.protopie.io/p/46fc0634e8
 
 MODELS:
     VIDEOS:
-        vid = youtube video id
+        vid = youTube video id
         user:
             access video if:
                 they added timestamp last
@@ -29,8 +29,8 @@ MODELS:
         purpose = for additional tokens or for subscription
         token_amount = if purpose is tokens, amount of tokens to give
         subscription_duration = if purpose is subscription, duration of subscription to give
-        hits =  number of times code can be used
-        expires = when code will expire
+        max_use =  number of times code can be used
+        expires() = when code will expire
 
 PAGES:
     home/video playback page:

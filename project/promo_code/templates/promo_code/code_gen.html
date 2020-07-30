@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block main %}
-<div class="container w-50">
+<div class="container w-75">
     <h2>Generate Promo Codes</h2>
     <form actinon="" method="POST">
         {%csrf_token%}
@@ -12,7 +12,7 @@
                 <label for="code">Code</label>
 
                 <div class="input-group">
-                    <input type="text" class="form-control" id="code"
+                    <input type="text" class="form-control" id="code" name="code"
                         placeholder="Enter code here or click button to generate">
                     <div class="input-group-append">
                         <button class="btn btn-success" id="code_gen">Generate</button>
@@ -23,40 +23,36 @@
             </div>
 
         </div>
-
+ 
         <div class="form-group">
 
-            <label for="duration">how long should it last</label>
-            <div class=" input-group">
+            <label for="duration">Enter Duration in number of days</label>
 
-                <select  class="form-control input-group-append" name="days" id="days">
-                    <option value="">days</option>
-                </select>
 
-                <select  class="form-control input-group-append" name="hours" id="hours">
-                    <option value="">hours</option>
-                </select>
-
-                <select  class="form-control input-group-append" name="minutes" id="minutes">
-                    <option value="">minutes</option>
-                </select>
-
+            <div class="input-group mw-75 ">
+                {% csrf_token %}
+                <div class="input-group-append">
+                    <label class="input-group-text" for="days">Days</label>
+                </div>
+                <input type="number" class="form-control" value=0 id="days" name="days" placeholder="Days" min="0" max="365">
             </div>
+
+
         </div>
 
         <div class="form-group">
-            <label for="hits"> Number of Uses </label>
-            <input type="number" min=0 value=0 class="form-control" id="hits" name="hits"
+            <label for="max_use"> Max Use: Number of times code can be used </label>
+            <input type="number" min=0 value=0 class="form-control" id="max_use" name="max_use"
                 placeholder="Enter 0 for unlimited">
         </div>
 
         <div class="form-row">
             <div class="form-group col-md-12">
-                <label for="code_type">Type</label>
-                <select id="code_type" name="code_type" class="form-control" placeholder="Select Type of Code">
+                <label for="purpose">Type</label>
+                <select id="purpose" name="purpose" class="form-control" placeholder="Select Type of Code">
                     <option value="" disabled selected hidden>Select Type of Code</option>
-                    <option>Token</option>
-                    <option>Subscription</option>
+                    <option value="Token">Token</option>
+                    <option value="Subscription">Subscription</option>
                 </select>
             </div>
         </div>
@@ -64,66 +60,30 @@
 
 
         <div id="subscription_duration" class="form-group">
-            <label for="duration">Subscription Duration</label>
-            <div class=" input-group">
-
-                <select  class="form-control input-group-append" name="s_days" id="s_days">
-                    <option value="">days</option>
-                </select>
-
-                <select  class="form-control input-group-append" name="s_hours" id="s_hours">
-                    <option value="">hours</option>
-                </select>
-
-                <select  class="form-control input-group-append" name="s_minutes" id="s_minutes">
-                    <option value="">minutes</option>
-                </select>
-
+            <label for="duration">Subscription Duration in days</label>
+           
+            <div class="input-group mw-75 ">
+                {% csrf_token %}
+                <div class="input-group-append">
+                    <label class="input-group-text" for="s_days">Days</label>
+                </div>
+                <input type="number" class="form-control" value=0 id="s_days" name="s_days" placeholder="Days" min="0" max="365">
+                          
             </div>
 
         </div>
+
+
         <div class="form-group" id="token_amount">
             <label for="hits">Token Amount</label>
-            <input type="number" min=0 value=0 class="form-control" name="token_amount"
-                placeholder="Enter 0 for unlimited">
+            <input type="number" min=0 value=0 class="form-control" name="token_amount">
         </div>
-
-
-
-
 
 
         <button type="submit" class="btn account-btn btn-primary">Submit</button>
     </form>
 
 
-
-
-
-
-
-
-
-
-    {% for video in videos %}
-    <div class="card mb-3" style="max-width: 75%;">
-        <div class="row no-gutters">
-
-            <div class="col-md-4">
-                <img src="{{video.thumbnail}}" class="card-img" alt="video.title">
-            </div>
-
-            <div class="col-md-8 ">
-                <div class="card-body">
-                    <input type="hidden" name="video_id" class="video_id" value="{{video.id}}">
-                    <h5 class="card-title video_title">{{video.title}}</h5>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    {% endfor %}
 
 </div>
 
@@ -146,37 +106,14 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         let days = document.getElementById('days')
-        let hours = document.getElementById('hours')
-        let minutes = document.getElementById('minutes')
 
         let s_days = document.getElementById('s_days')
-        let s_hours = document.getElementById('s_hours')
-        let s_minutes = document.getElementById('s_minutes')
-
-        let n_days = [...Array(31).keys()]
-        let n_hours = [...Array(25).keys()]
-        let n_minutes = [...Array(61).keys()]
-        n_days.forEach((i, j) => {
-            days[j + 1] = new Option(i, j)
-            s_days[j + 1] = new Option(i, j)
-        })
-
-        n_hours.forEach((i, j) => {
-            hours[j + 1] = new Option(i, j)
-            s_hours[j + 1] = new Option(i, j)
-        })
-
-        n_minutes.forEach((i, j) => {
-            minutes[j + 1] = new Option(i, j)
-            s_minutes[j + 1] = new Option(i, j)
-        })
 
 
         let token_field = document.getElementById('token_amount')
         let subscription_duration = document.getElementById('subscription_duration')
-        let code_type = document.getElementById('code_type')
-        code_type.addEventListener('change', (e) => {
-            console.log(e.target)
+        let purpose = document.getElementById('purpose')
+        purpose.addEventListener('change', (e) => {
 
             if (e.target.value === "Token") {
                 token_field.style.display = "block"

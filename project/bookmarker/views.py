@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 from django.utils.decorators import method_decorator
 from django.core.exceptions import ObjectDoesNotExist
-from bookmarker.models import Video, UserVideo, Token, VideoViews, ResetableViews
+from bookmarker.models import Video, UserVideo, VideoViews, ResetableViews
 from bookmarker.utilities import get_video_details
 
 # /watch
@@ -48,7 +48,7 @@ class Index(View):
 
                     if user_video:
                         return self.return_fun()
-                    elif not user.subscription.expired:
+                    elif not user.subscription.has_expired:
                         return self.return_fun()
                     elif user.tokens.amount >= self.video.cost:
                         user.tokens.amount -= self.video.cost
@@ -58,7 +58,7 @@ class Index(View):
                     else:
                         messages.error(request, "Sorry You need a subscription or sufficient tokens play this video\
                                                 you can get tokens by adding timestamps to available videos")
-                        return render(self.request, 'bookmarker/index.html', {'video': None, 'description': self.description })
+                        return render(self.request, 'bookmarker/lock.html', {'video': None, 'description': self.description })
                 else:
                     messages.error(request, "Sorry You need be logged in to watch this video")
                     return render(self.request, 'bookmarker/index.html', {'video': None, 'description': self.description })
@@ -87,14 +87,14 @@ class Index(View):
             self.video.timestamps = timestamps
             self.video.last_editor = user
             self.video.save()
-            user.videos.get_or_create(video=self.video)
             changed = False if self.video.timestamps == timestamps else True
             
             if changed:
                 self.video.rviews.count = 0
                 self.video.rviews.save()
-
-            url = f"{request.path_info}?v={video_id}"  # build a path to redirect to if post operation is complete
+                
+            # build a path to redirect to if post operation is complete
+            url = f"{request.path_info}?v={video_id}"  
             return redirect(url)
         else:  # if recaptcha was unsuccessful
             messages.error(request, 'reCAPTCHA error. Please try again.')  # return an error    
@@ -128,10 +128,12 @@ class Count(View):
                     if video.timestamps:
                         if (views.count >= 3) and (not changed):
                             video.locked = True
+                            video.cost = 1
                             video.save()
                             last_editor = video.last_editor
                             last_editor.tokens.amount += 1
                             last_editor.tokens.save()
+                            last_editor.videos.get_or_create(video=self.video)
                         elif changed:
                             video.rviews.count = 0
                             video.rviews.save()
@@ -164,9 +166,9 @@ class Subscribe(View):
     def post(self, request):
         if request.is_ajax(): 
             user = request.user
-            expires = datetime.today() + timedelta(days=30)
-            user.set_paid_until(expires.date()) 
-            user.save()     
+            expires = datetime.now() + timedelta(days=30)
+            user.subscription.set_paid_until(expires) 
+            user.subscription.save()     
             return JsonResponse({'message':'success'}, status=200)
         
         return JsonResponse({'error':'request forbidden'}, status=403)

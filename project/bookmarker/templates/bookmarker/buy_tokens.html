@@ -9,7 +9,7 @@
 
     <form action="" class="form-container">
         {%csrf_token%}
-        <input type="number" class="form-control" name="token_amount" id="token_amount" min="1" value="1">
+        <input type="number" class="form-control" name="tokens" id="tokens" min="1" value="1">
         <h3 class="price">$ <span id="price">10</span></h3>
         <div id="paypal-button-container"></div>
     </form>
@@ -44,8 +44,13 @@
         // Finalize the transaction
         onApprove: function (data, actions) {
             return actions.order.capture().then(function (details) {
+
+                console.log(details)
+
                 // Show a success message to the buyer
                 buyTokens()
+
+                 window.location.href = "{% url 'profile' request.user.username %}"
             });
         }
 
@@ -53,7 +58,8 @@
 </script>
 
 <script>
-    document.getElementById('token_amount')
+tprice = document.getElementById('price')
+    document.getElementById('tokens')
         .addEventListener('input', function (e) {
             tprice.textContent = `${e.target.value * 10}`
         });
@@ -66,10 +72,11 @@
             url: "{% url 'buy_tokens' %}",
             data: {
                 csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
-                tokens: document.getElementById("token_amount").value,
+                tokens: document.getElementById("tokens").value,
             },
             success: function (response) {
                 alert("Tokens Added Successfully")
+               
 
             },
             error: function (e) {

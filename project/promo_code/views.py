@@ -1,6 +1,6 @@
 import uuid
-from django.shortcuts import render, redirect
-from django.views.generic import View
+from django.shortcuts import render, redirect, reverse
+from django.views.generic import View, DeleteView
 from promo_code.models import PromoCode
 from datetime import timedelta, datetime
 from django.db import IntegrityError
@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 class CodeGen(View):
     def get(self, request, *args, **kwargs):
-        codes = PromoCode.objects.all()        
+        codes = PromoCode.objects.all().order_by('-date_created')      
         context = {
             "codes": codes,
         }
@@ -37,7 +37,7 @@ class CodeGen(View):
                 
         return redirect('code_gen')
 
-
+ 
 class UseCode(View):
     def post(self, request, *args, **kwargs):
         p_code = request.POST.get('p_code')
@@ -77,4 +77,12 @@ class UseCode(View):
                     return redirect('profile', user.username)
 
 
+class DeleteCode(DeleteView):
+    model = PromoCode
 
+    def get_success_url(self):
+        return reverse('code_gen')
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+    

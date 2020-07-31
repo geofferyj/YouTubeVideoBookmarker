@@ -84,15 +84,19 @@ class Index(View):
         # if recaptcha was successful
         if result.get('success'):
             self.video = Video.objects.get(vid=video_id)
-            self.video.timestamps = timestamps
-            self.video.last_editor = user
-            self.video.save()
+            
+            print(f'\n\n\n\n\n\n\n self.video.timestamps: {self.video.timestamps}\n\n\n\n\n\n\n timestamps: {timestamps}')
             changed = False if self.video.timestamps == timestamps else True
             
             if changed:
                 self.video.rviews.count = 0
                 self.video.rviews.save()
-                
+
+
+            self.video.timestamps = timestamps
+            self.video.last_editor = user
+            self.video.save()
+               
             # build a path to redirect to if post operation is complete
             url = f"{request.path_info}?v={video_id}"  
             return redirect(url)
@@ -148,6 +152,7 @@ class BuyToken(View):
 
 
         return render(self.request, 'bookmarker/buy_tokens.html')
+
     def post(self, request):
         if request.is_ajax(): 
             user = request.user

@@ -98,6 +98,16 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # LOGIN_URL = 'login'
 
 
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
+MAILER_EMAIL_BACKEND = EMAIL_BACKEND  
+EMAIL_HOST = 'smtp.gmail.com'  
+EMAIL_HOST_PASSWORD = 'pcfzoyfvowrfhehf'  
+EMAIL_HOST_USER = 'geofferyjdev@gmail.com'  
+EMAIL_PORT = 465 
+EMAIL_USE_SSL = True  
+
+
 # ---------------- allauth settings -------------------#
 
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS=7
@@ -112,7 +122,8 @@ ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 86400
 
 ACCOUNT_LOGOUT_REDIRECT_URL = 'index'
 
-# LOGIN_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = 'index'
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 
 # AUTH_USER_MODEL = 'bookmarker.User'
+

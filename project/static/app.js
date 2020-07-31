@@ -15,19 +15,21 @@ $(window).on("load", function () {
     const addTimeStampBtn = document.getElementById("addTimeStamp");
     const stamp_display = document.getElementById('stamp_display')
     addTimeStampBtn.addEventListener("click", addTime);
-    const player = new Plyr('#player', {settings: ['captions', 'quality', 'speed', 'loop']});
+    const player = new Plyr('#player', {
+        settings: ['captions', 'quality', 'speed', 'loop']
+    });
     let video_id = $("#video_id").val()
     let t;
     let hit = 0;
     window.player = player;
 
     listOfStamps.forEach(item => {
-        if (item != '0'){
-        let elem = document.createElement('span')
-        elem.innerText=convertSecondsToHMmSs(item)
-        elem.className = "badge badge-info"
-        stamp_display.appendChild(elem)
-    }
+        if (item != '0') {
+            let elem = document.createElement('span')
+            elem.innerText = convertSecondsToHMmSs(item)
+            elem.className = "badge badge-info"
+            stamp_display.appendChild(elem)
+        }
     });
 
 
@@ -40,7 +42,11 @@ $(window).on("load", function () {
         };
 
 
-        annyang.start({paused: true})
+        annyang.start({
+            paused: true,
+            autoRestart: false,
+            continuous: false
+        })
 
     }
 
@@ -51,10 +57,10 @@ $(window).on("load", function () {
         if (!(stamps.includes(timestamp) || timestamp == 0)) {
             stamps.push(timestamp)
             timestamps.value = stamps.sort((a, b) => a - b).join()
-            stamp_display.innerHTML=''
+            stamp_display.innerHTML = ''
             stamps.forEach(item => {
                 let elem = document.createElement('span')
-                elem.innerText=convertSecondsToHMmSs(item)
+                elem.innerText = convertSecondsToHMmSs(item)
                 elem.className = "badge badge-info"
                 stamp_display.appendChild(elem)
             });
@@ -106,17 +112,16 @@ $(window).on("load", function () {
 
         if (event.detail.code === 1) {
 
-            console.log(convertSecondsToHMmSs(player.currentTime))
-
             annyang.abort()
             t = setInterval(function () {
                 listOfStamps.forEach(function (item, index) {
-                    if (roundNumber(player.currentTime,2) === item && item !== 0) {
+                    if (roundNumber(player.currentTime) === item && item !== 0 ) {
+                        
                         hit++
                         pause()
 
                         if (hit == listOfStamps.length) {
-                            
+
                             $.ajax({
                                 type: "post",
                                 url: "/view_counter/",
@@ -146,9 +151,11 @@ $(window).on("load", function () {
             annyang.resume();
         }
     })
+
     function zeroPad(numberStr) {
         return numberStr.padStart(2, "0");
-      }
+    }
+
     function convertSecondsToHMmSs(seconds) {
         let s = zeroPad(roundNumber(seconds % 60).toString());
         let m = zeroPad(roundNumber((seconds / 60) % 60).toString());

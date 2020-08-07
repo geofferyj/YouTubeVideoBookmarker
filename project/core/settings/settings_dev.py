@@ -15,6 +15,11 @@ DATABASES = {
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'staticfiles'),] 
-GOOGLE_RECAPTCHA_SECRET_KEY = '6LcxrbAZAAAAAKhbc1l1IKfQ_OJ2MSlh1No79giD' 
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 
 #

@@ -28,24 +28,35 @@ $(window).on("load", function () {
             let elem = document.createElement('span')
             elem.innerText = convertSecondsToHMmSs(item)
             elem.className = "badge badge-info"
+            elem.setAttribute("data-value", `${item}`)
             stamp_display.appendChild(elem)
         }
     });
 
+    stamp_display.addEventListener('click', (e)=>{
+
+        if (e.target.tagName.toLowerCase() == "span"){
+            let time = parseInt(e.target.dataset.value)
+            player.currentTime = time + 0.5
+            player.play()
+
+        }
+    })
 
     if (annyang) {
         var commands = {
             'play': play,
             'continue': play,
             'resume': play,
-            'unpause': play
+            'unpause': play,
+            'pause': pause
         };
 
+        annyang.addCommands(commands);
 
         annyang.start({
-            paused: true,
-            autoRestart: false,
-            continuous: false
+            autoRestart: true,
+            continuous: true
         })
 
     }
@@ -62,6 +73,7 @@ $(window).on("load", function () {
                 let elem = document.createElement('span')
                 elem.innerText = convertSecondsToHMmSs(item)
                 elem.className = "badge badge-info"
+                elem.setAttribute("data-value", `${item}`)
                 stamp_display.appendChild(elem)
             });
         }
@@ -112,7 +124,6 @@ $(window).on("load", function () {
 
         if (event.detail.code === 1) {
 
-            annyang.abort()
             t = setInterval(function () {
                 listOfStamps.forEach(function (item, index) {
                     if (roundNumber(player.currentTime) === item && item !== 0 ) {
@@ -147,8 +158,6 @@ $(window).on("load", function () {
 
         } else if (event.detail.code === 2) {
             clearInterval(t);
-            annyang.addCommands(commands);
-            annyang.resume();
         }
     })
 

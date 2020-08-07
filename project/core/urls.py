@@ -17,10 +17,15 @@ from django.contrib import admin
 from django.urls import path, include
 
 
+
+from filetest import views as vs
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('bookmarker.urls')),
     path('accounts/', include('allauth.urls')),
     path('profile/', include('user_profile.urls')),
     path('promo/', include('promo_code.urls')),
+    path('files/', vs.simple_upload)
 ]

@@ -24,6 +24,9 @@ INSTALLED_APPS = [
     'bookmarker',
     'user_profile',
     'promo_code',
+
+
+    'filetest',
     
 ]
 
@@ -125,5 +128,5 @@ ACCOUNT_LOGOUT_REDIRECT_URL = 'index'
 LOGIN_REDIRECT_URL = 'index'
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 
-# AUTH_USER_MODEL = 'bookmarker.User'
 
+GOOGLE_RECAPTCHA_SECRET_KEY = '6LcxrbAZAAAAAKhbc1l1IKfQ_OJ2MSlh1No79giD' 

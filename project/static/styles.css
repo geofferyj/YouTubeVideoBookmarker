@@ -586,3 +586,8 @@ input:checked+.slider:before {
     font-size: bold;
     /* border-radius: 25%; */
 }
+
+
+#stamp_display > span{
+    cursor: pointer;
+}

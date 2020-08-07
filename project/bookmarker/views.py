@@ -85,7 +85,6 @@ class Index(View):
         if result.get('success'):
             self.video = Video.objects.get(vid=video_id)
             
-            print(f'\n\n\n\n\n\n\n self.video.timestamps: {self.video.timestamps}\n\n\n\n\n\n\n timestamps: {timestamps}')
             changed = False if self.video.timestamps == timestamps else True
             
             if changed:

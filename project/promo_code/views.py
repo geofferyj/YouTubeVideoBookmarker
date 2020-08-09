@@ -30,7 +30,7 @@ class CodeGen(View):
         token_amount = float(request.POST.get("token_amount")) or 0
         try:
             PromoCode.objects.create(code=code, token_amount=token_amount, dur=duration, purpose=purpose, subscription_duration=sub_dur, max_use=max_use)
-        except IntegrityError as e:
+        except IntegrityError:
             messages.error(request, 'Code Already exists')
             return redirect('code_gen')
 

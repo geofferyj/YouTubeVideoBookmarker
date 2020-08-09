@@ -43,24 +43,6 @@ $(window).on("load", function () {
         }
     })
 
-    if (annyang) {
-        var commands = {
-            'play': play,
-            'continue': play,
-            'resume': play,
-            'unpause': play,
-            'pause': pause
-        };
-
-        annyang.addCommands(commands);
-
-        annyang.start({
-            autoRestart: true,
-            continuous: true
-        })
-
-    }
-
     function addTime() {
 
         let timestamp = roundNumber(player.currentTime)

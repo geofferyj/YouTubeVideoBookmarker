@@ -45,10 +45,14 @@
                     <img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" /> Voice
                     Play
                 </button>
-                <button class="btn-d btn-grey-small">
-                    <img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" /> Voice
-                    Pause
-                </button>
+                <form action="{% url 'activate_voice_pause' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="v" value={{video.vid}}>
+                    <button type="submit" class="btn-d btn-grey-small">
+                        {% if not request.user.voice_pause.has %}<img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" />{% endif %} Voice
+                        Pause
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -57,7 +61,7 @@
             <div class="head">
                 <h5>Video Description</h5>
             </div>
-            <div class="description"> {{ description | urlizetrunc:25 | linebreaks}}</div>
+            <div class="description"> {% if video.vid %}{{ description | urlizetrunc:25 | linebreaks}}{% endif %}</div>
         </div>
 
         <div class="description-right">
@@ -67,7 +71,7 @@
                     <input type="checkbox" class="custom-control-input" id="customSwitches">
                     <label class="custom-control-label switch" for="customSwitches"></label>
                 </div>
-                
+
             </div>
 
             <div id="stamp_display" class="stamp_display"></div>
@@ -85,3 +89,56 @@
     </div>
 </section>
 {% endblock main %}
+{% block script %}
+
+<script>
+   function play() {
+        player.play()
+    }
+
+    function pause() {
+
+        player.pause();
+
+    }
+
+
+    if (annyang) {
+        var commands = {
+            'play': play,
+            'continue': play,
+            'resume': play,
+            'unpause': play,
+
+            {% if beta %}
+                'pause': pause
+            {% elif voice_pause == 0 %}
+
+                'pause': pause
+
+            {% elif voice_pause == 1 and request.user.is_authenticated%}
+
+                'pause': pause
+
+            {% elif voice_pause == 2 %}
+
+                {% if request.user.voice_pause.has %}
+                
+                    'pause': pause
+                
+                {% endif %}
+
+            {% endif %}
+        };
+
+        annyang.addCommands(commands);
+
+        annyang.start({
+            autoRestart: true,
+            continuous: true
+        })
+
+    }
+</script>
+
+{% endblock script %}

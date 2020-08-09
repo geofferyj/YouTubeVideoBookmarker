@@ -1,7 +1,17 @@
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.dispatch import receiver
-from bookmarker.models import Token, Video, ResetableViews, Subscription
+from bookmarker.models import Token, Video, ResetableViews, Subscription, VoicePause
+
+# VoicePause
+@receiver(post_save, sender=User)
+def create_voicepause(sender, instance, created, **kwargs):
+    if created:
+        VoicePause.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_voicepause(sender, instance, **kwargs):
+    instance.voice_pause.save()
 
 # Token
 @receiver(post_save, sender=User)

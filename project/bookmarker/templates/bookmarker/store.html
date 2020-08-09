@@ -12,7 +12,7 @@
 
       <img src="{% static 'images/Token icon.png' %}" alt="" class="store-img2" />
       <a type="button" href="{% url 'buy_tokens' %}" class="btn btn-red2">Buy Token</a>
-      <h1 class="price">$100</h1>
+      <h1 class="price">${{ price.token }}</h1>
 
     </div>
 
@@ -22,7 +22,7 @@
 
       <img src="{% static 'images/IconNoShadow.png' %}" alt="" class="store-img" />
       <a class="btn btn-red2" href="{% url 'subscribe' %}">Subscribe</a>
-      <h1 class="price">$200</h1>
+      <h1 class="price">${{ price.subscription }}</h1>
 
     </div>
 

@@ -10,7 +10,7 @@
     <form action="" class="form-container">
         {%csrf_token%}
         <input type="number" class="form-control" name="tokens" id="tokens" min="1" value="1">
-        <h3 class="price">$ <span id="price">10</span></h3>
+        <h3 class="price">$ <span id="price">{{ price }}</span></h3>
         <div id="paypal-button-container"></div>
     </form>
 
@@ -61,7 +61,7 @@
 tprice = document.getElementById('price')
     document.getElementById('tokens')
         .addEventListener('input', function (e) {
-            tprice.textContent = `${e.target.value * 10}`
+            tprice.textContent = `${e.target.value * {{price}}}`
         });
 
 

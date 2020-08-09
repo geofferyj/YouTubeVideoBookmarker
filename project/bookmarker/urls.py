@@ -7,7 +7,6 @@ from django.conf.urls.static import static
 # defines the urls (links)
 urlpatterns = [
     path("", red, name="red"),
-    path("site/admin/", admin_page, name="admin_page"),
     path('view_counter/', Count.as_view(), name='view_counter'),
     path('store/', StoreView.as_view(), name='store'),
     path('buy_tokens', BuyToken.as_view(), name='buy_tokens'),

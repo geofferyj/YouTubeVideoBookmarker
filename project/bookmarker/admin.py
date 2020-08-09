@@ -1,5 +1,5 @@
 from django.contrib import admin
-from bookmarker.models import Token, Subscription, Video, UserVideo, VideoViews, ResetableViews, User
+from bookmarker.models import Token, Subscription, Video, UserVideo, VideoViews, ResetableViews, User, VoicePause
 
 @admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
@@ -32,3 +32,8 @@ class ResetableViewsAdmin(admin.ModelAdmin):
 @admin.register(VideoViews)
 class VideoViewsAdmin(admin.ModelAdmin):
     list_display: list = ['video', 'user']
+    
+    
+@admin.register(VoicePause)
+class VoicePauseAdmin(admin.ModelAdmin):
+    list_display: list = ['user','has']

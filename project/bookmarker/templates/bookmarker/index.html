@@ -49,7 +49,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="v" value={{video.vid}}>
                     <button type="submit" class="btn-d btn-grey-small">
-                        {% if request.user.voice_pause.has %}<img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" />{% endif %} Voice
+                        {% if not request.user.voice_pause.has %}<img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" />{% endif %} Voice
                         Pause
                     </button>
                 </form>

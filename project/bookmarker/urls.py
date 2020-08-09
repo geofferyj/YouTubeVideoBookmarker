@@ -1,5 +1,5 @@
 from django.urls import path, include
-from bookmarker.views import Index, red, admin_page, Count, StoreView, BuyToken, Subscribe, IndexBeta, ActivateVoicePause
+from bookmarker.views import Index, red, Count, StoreView, BuyToken, Subscribe, IndexBeta, ActivateVoicePause
 from django.conf import settings
 from django.conf.urls.static import static
 

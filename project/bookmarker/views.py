@@ -267,6 +267,8 @@ class ActivateVoicePause(View):
         if user.is_authenticated:
 
             if user.tokens.amount:
+                user.tokens.amount -= 1
+                user.tokens.save()
                 user.voice_pause.has = True
                 user.voice_pause.save()
                 messages.success(request, "Voice Pause activated")

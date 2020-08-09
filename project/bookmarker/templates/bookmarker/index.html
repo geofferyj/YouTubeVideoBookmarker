@@ -45,11 +45,11 @@
                     <img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" /> Voice
                     Play
                 </button>
-                <form action="{% url 'activate_voice_pause' %}" method="post">
+                <form class="control-form" action="{% url 'activate_voice_pause' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="v" value={{video.vid}}>
                     <button type="submit" class="btn-d btn-grey-small">
-                        {% if not request.user.voice_pause.has %}<img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" />{% endif %} Voice
+                        {% if request.user.voice_pause.has %}<img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" />{% endif %} Voice
                         Pause
                     </button>
                 </form>

@@ -590,4 +590,9 @@ input:checked+.slider:before {
 
 #stamp_display > span{
     cursor: pointer;
+} 
+
+
+.control-form{
+    display: inline;
 }

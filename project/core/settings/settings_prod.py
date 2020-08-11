@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = False 
 
-ALLOWED_HOSTS = ['localhost', 'handsfreeyoutube.com']
+ALLOWED_HOSTS = ['web']
 
 DATABASES = {
     'default': {

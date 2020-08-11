@@ -4,12 +4,14 @@ from datetime import date, datetime, timedelta
 
 
 class Subscription(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='subscription')
     paid_until = models.DateTimeField(null=True, blank=True)
     date_paid = models.DateTimeField(auto_now_add=True)
 
     # store subscription reference to this user
-    paypal_subscription_id = models.CharField(max_length=64, blank=True, null=True)
+    paypal_subscription_id = models.CharField(
+        max_length=64, blank=True, null=True)
 
     def set_paid_until(self, date_or_timestamp):
         if isinstance(date_or_timestamp, int):
@@ -30,61 +32,75 @@ class Subscription(models.Model):
             return False
 
         return current_date < self.paid_until
-    
+
     @property
     def has_expired(self):
         if self.paid_until:
             return False if self.paid_until >= datetime.now() else True
         return True
-   
+
     def __str__(self):
         return self.user.username
-    
+
 
 # The video model, saves videodata to the db
 class Video(models.Model):
-    vid = models.CharField(max_length=11, primary_key=True) 
+    vid = models.CharField(max_length=11, primary_key=True)
     timestamps = models.TextField(default='')
     cost = models.PositiveIntegerField(default=0)
     locked = models.BooleanField(default=False)
-    last_editor = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-
+    last_editor = models.ForeignKey(
+        User, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.vid
 
+
 class VoicePause(models.Model):
-    user = models.OneToOneField(User, related_name='voice_pause', on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, related_name='voice_pause', on_delete=models.CASCADE)
     has = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.username   
+        return self.user.username
+
+
 class UserVideo(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="videos")
-    video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name="users")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="videos")
+    video = models.ForeignKey(
+        Video, on_delete=models.CASCADE, related_name="users")
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['user', 'video'], name='user_video_constraint')
+            models.UniqueConstraint(
+                fields=['user', 'video'], name='user_video_constraint')
         ]
 
+
 class Token(models.Model):
-    user = models.OneToOneField(User, related_name='tokens', on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, related_name='tokens', on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.user.username
-    
+
+
 class ResetableViews(models.Model):
-    video = models.OneToOneField(Video, on_delete=models.CASCADE, related_name='rviews')
+    video = models.OneToOneField(
+        Video, on_delete=models.CASCADE, related_name='rviews')
     count = models.PositiveIntegerField(default=0)
 
+
 class VideoViews(models.Model):
-    video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name="views")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="views")
+    video = models.ForeignKey(
+        Video, on_delete=models.CASCADE, related_name="views")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="views")
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['user', 'video'], name='video_views_constraint')
+            models.UniqueConstraint(
+                fields=['user', 'video'], name='video_views_constraint')
         ]
-

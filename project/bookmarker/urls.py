@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-# defines the urls (links)
+# defines the urls (links) 
 urlpatterns = [
     path("", red, name="red"),
     path('view_counter/', Count.as_view(), name='view_counter'),

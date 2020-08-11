@@ -1,7 +1,8 @@
-Django
-gunicorn
-psycopg2-binary
-requests
-django-crispy-forms
-django-inlinecss
-django-allauth
+Django==3.0.8
+django-allauth==0.42.0
+django-crispy-forms==1.9.2
+django-inlinecss==0.3.0
+gunicorn==20.0.4
+psycopg2-binary==2.8.5
+requests==2.24.0
+requests-oauthlib==1.3.0

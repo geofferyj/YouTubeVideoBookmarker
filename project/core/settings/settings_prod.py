@@ -10,7 +10,7 @@ DATABASES = {
         'NAME': 'handsfreeyoutube_db',
         'USER': 'project_admin',
         'PASSWORD': 'project_admin_password_#001',
-        'HOST': 'localhost',
+        'HOST': '162.214.124.233',
         'PORT': '',
     }
 }

@@ -14,8 +14,8 @@
   <div class="account-div">
     <img src="{% static 'images/IconNoShadow.png' %}" alt="" class="account-img" />
     <p>Your Subscription expires </p>
-    <p>in {{user.subscription.paid_until | timeuntil}} </p>
-    <p>on {{user.subscription.paid_until}} </p>
+    <p>in {{user.subscription.paid_until | timeuntil }} </p>
+    <p>on {{user.subscription.paid_until|date }} </p>
 
     <a type="button" class=" account-btn btn">Subscribe</a>
   </div>

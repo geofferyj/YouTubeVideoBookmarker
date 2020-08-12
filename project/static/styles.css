@@ -76,6 +76,8 @@ body {
 .description-right {
     box-shadow: 0px 2px 6px 4px lightgrey;
     background-color: #f1f1f1;
+    max-width: 320px;
+
 }
 
 .description-right p {
@@ -126,10 +128,14 @@ body {
     background-color: red;
     padding: 0.7em;
     color: black;
-    display: grid;
+    /* display: inline; */
 
-    grid-template-columns: 3fr 1fr;
-    grid-gap: 2em;
+    /* grid-template-columns: 3fr 1fr;
+    grid-gap: 2em; */
+}
+
+.Pause-times > h5 {
+    display: inline;
 }
 
 .Pause-times button {
@@ -564,7 +570,7 @@ input:checked+.slider:before {
     color: black;
     display: block;
     overflow-x: scroll;
-    max-width: 320px;
+    max-width: 100%;
     white-space: nowrap;
 }
 
@@ -588,11 +594,11 @@ input:checked+.slider:before {
 }
 
 
-#stamp_display > span{
+#stamp_display>span {
     cursor: pointer;
-} 
+}
 
 
-.control-form{
+.control-form {
     display: inline;
 }

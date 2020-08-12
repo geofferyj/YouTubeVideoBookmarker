@@ -80,20 +80,23 @@
         <div class="description-right">
             <div class="Pause-times" id="colorGray">
                 <h5>Auto Pause Times</h5>
+                <p style="display: inline;">edit</p>
+
                 <div class="custom-control switch custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="customSwitches">
-                    <label class="custom-control-label switch" for="customSwitches"></label>
+                    <input type="checkbox" class="custom-control-input" id="edit-stamp">
+                    <label class="custom-control-label switch" for="edit-stamp"></label>
                 </div>
 
             </div>
 
             <div id="stamp_display" class="stamp_display"></div>
+            <textarea form="submitTimeStamp" id="timestamps" class="form-control" name="timestamps" hidden>{{video.timestamps}}</textarea>
+
         </div>
         <div class="last-btn">
             <button class="btn-success account-btn btn-d last text-medium btn" id="addTimeStamp">Add timestamp</button>
             <form action="" method="post" id="submitTimeStamp">
                 {% csrf_token %}
-                <textarea id="timestamps" name="timestamps" hidden>{{video.timestamps}}</textarea>
                 <button class="btn-success btn-d account-btn btn last text-medium last g-recaptcha"
                     data-sitekey="6LcxrbAZAAAAAGRIVwQ2GaF4dzztHIFm7El9Z9Yo" data-callback="onSubmit"
                     type="submit">Update List</button>
@@ -105,7 +108,23 @@
 {% block script %}
 
 <script>
-   function play() {
+    var stamp_display_field = document.getElementById('stamp_display')
+    var edit_stamp = document.getElementById('edit-stamp')
+    var stamp_edit_field = document.getElementById('timestamps')
+    edit_stamp.addEventListener("input", ()=>{
+        if (edit_stamp.checked){
+            stamp_edit_field.hidden = false
+            stamp_display_field.hidden = true
+
+        }else{
+            stamp_edit_field.hidden = true
+            stamp_display_field.hidden = false
+        }
+    })
+
+
+
+    function play() {
         player.play()
     }
 

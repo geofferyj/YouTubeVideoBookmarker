@@ -2,8 +2,8 @@
 {% load static %}
 {% block main %}
 
-<section class="top">
-    <div>
+<div class="row ">
+    <div class="top">
         <form action="" class="form-input">
             <input id="v" name="v" type="text" class="top-input form-control" placeholder="Paste video Url or id here">
             <button class="btn-d btn-red" id="v_btn" disabled type="submit">
@@ -11,10 +11,10 @@
             </button>
         </form>
     </div>
-</section>
+</div>
 
-<section class="grid">
-    <div class="video-grid">
+<div class="row">
+    <div class="col-md-8">
 
         {% if video.vid %}
         <div class="embed-responsive embed-responsive-16by9 video">
@@ -22,10 +22,17 @@
                 <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="{{video.vid}}"></div>
             </div>
         </div>
+
+
+
         {% else %}
-        <video controls class="video">
-            <source src="" type="video/mp4" />
-        </video>
+        <div class="embed-responsive embed-responsive-16by9 video">
+            <div class="embed-responsive-item">
+                <video controls>
+                    <source src="" type="video/mp4" />
+                </video> </div>
+        </div>
+
         {% endif %}
 
         <div class="controls">
@@ -33,22 +40,38 @@
                 <button class="btn-d btn-red-small text-bold">
                     Control Options&nbsp; &nbsp;
                 </button>
-                <button class="btn-d btn-grey-small mr-5">Auto-Pause</button>
+                <button class="btn-d btn-grey-small">Auto-Pause</button>
                 <button class="btn-d btn-grey-small">Manual</button>
             </div>
 
+            {% if not beta%}
             <div class="voice-controls">
+
+
                 <button class="btn-d btn-blue-small text-bold">
                     Unlock Voice Play
                 </button>
-                <button class="btn-d btn-grey-small mr-4">
-                    <img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" /> Voice
-                    Play
-                </button>
+
+                {% if request.user.voice_play.has %}
+
+                <button class="btn-d btn-grey-small">Voice Play</button>
+
+                {% else %}
+
+                <form class="control-form" action="{% url 'activate_voice_play' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="v" value="{{video.vid}}">
+                    <button type="submit" class="btn-d btn-grey-small">
+                        <img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" /> Voice Play
+                    </button>
+                </form>
+
+                {% endif %}   
+                
 
                 {% if request.user.voice_pause.has %}
 
-                <div class="control-form" >
+                <div class="control-form">
                     <button class="btn-d btn-grey-small">Voice Pause</button>
                 </div>
 
@@ -56,7 +79,7 @@
 
                 <form class="control-form" action="{% url 'activate_voice_pause' %}" method="post">
                     {% csrf_token %}
-                    <input type="hidden" name="v" value={{video.vid}}>
+                    <input type="hidden" name="v" value="{{video.vid}}">
                     <button type="submit" class="btn-d btn-grey-small">
                         <img src="{% static 'images/PauseLock.png' %}" width="30px" alt="" /> Voice Pause
                     </button>
@@ -67,43 +90,55 @@
 
 
             </div>
+            {% endif %}
         </div>
     </div>
-    <div class="video-description">
-        <div class="description-right">
-            <div class="head">
-                <h5>Video Description</h5>
+
+    <div class="col-md-4">
+
+        <div class="video-description">
+            <div class="description-right">
+                <div class="head">
+                    <h5>Video Description</h5>
+                    <i class="fa fa-lg fa-arrow-down"></i>
+                </div>
+                <div class="description"> {% if video.vid %}{{ description | urlizetrunc:25 | linebreaks}}{% endif %}
+                </div>
             </div>
-            <div class="description"> {% if video.vid %}{{ description | urlizetrunc:25 | linebreaks}}{% endif %}</div>
-        </div>
 
-        <div class="description-right">
-            <div class="Pause-times" id="colorGray">
-                <h5>Auto Pause Times</h5>
-                <p style="display: inline;">edit</p>
+            <div class="description-right">
+                <div class="Pause-times" id="colorGray">
+                    <h5>Auto Pause Times</h5>
+                    <div class="switch">
+                        <p>edit</p>
 
-                <div class="custom-control switch custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="edit-stamp">
-                    <label class="custom-control-label switch" for="edit-stamp"></label>
+                        <div class="custom-control switch custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="edit-stamp">
+                            <label class="custom-control-label switch" for="edit-stamp"></label>
+                        </div>
+                    </div>
+
+
                 </div>
 
+                <div id="stamp_display" class="stamp_display"></div>
+                <textarea form="submitTimeStamp" id="timestamps" class="form-control" name="timestamps"
+                    hidden>{{video.timestamps}}</textarea>
+
             </div>
-
-            <div id="stamp_display" class="stamp_display"></div>
-            <textarea form="submitTimeStamp" id="timestamps" class="form-control" name="timestamps" hidden>{{video.timestamps}}</textarea>
-
-        </div>
-        <div class="last-btn">
-            <button class="btn-success account-btn btn-d last text-medium btn" id="addTimeStamp">Add timestamp</button>
-            <form action="" method="post" id="submitTimeStamp">
-                {% csrf_token %}
-                <button class="btn-success btn-d account-btn btn last text-medium last g-recaptcha"
-                    data-sitekey="6LcxrbAZAAAAAGRIVwQ2GaF4dzztHIFm7El9Z9Yo" data-callback="onSubmit"
-                    type="submit">Update List</button>
-            </form>
+            <div class="last-btn">
+                <button class="btn-success account-btn btn-d last text-medium btn" id="addTimeStamp">Add
+                    timestamp</button>
+                <form action="" method="post" id="submitTimeStamp">
+                    {% csrf_token %}
+                    <button class="btn-success btn-d account-btn btn last text-medium last g-recaptcha"
+                        data-sitekey="6LcxrbAZAAAAAGRIVwQ2GaF4dzztHIFm7El9Z9Yo" data-callback="onSubmit"
+                        type="submit">Update List</button>
+                </form>
+            </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock main %}
 {% block script %}
 
@@ -111,12 +146,13 @@
     var stamp_display_field = document.getElementById('stamp_display')
     var edit_stamp = document.getElementById('edit-stamp')
     var stamp_edit_field = document.getElementById('timestamps')
-    edit_stamp.addEventListener("input", ()=>{
-        if (edit_stamp.checked){
+    const arrow = document.querySelector(".fa-arrow-down")
+    edit_stamp.addEventListener("input", () => {
+        if (edit_stamp.checked) {
             stamp_edit_field.hidden = false
             stamp_display_field.hidden = true
 
-        }else{
+        } else {
             stamp_edit_field.hidden = true
             stamp_display_field.hidden = false
         }
@@ -141,26 +177,18 @@
             'continue': play,
             'resume': play,
             'unpause': play,
+            // {% if beta %}
+            'pause': pause
+            // {% elif voice_pause == 0 %}
+            'pause': pause
+            // {% elif voice_pause == 1 and request.user.is_authenticated %}
+            'pause': pause
+            // {% elif voice_pause == 2 %}
+            // {%if request.user.voice_pause.has %}
+            'pause': pause
 
-            {% if beta %}
-                'pause': pause
-            {% elif voice_pause == 0 %}
-
-                'pause': pause
-
-            {% elif voice_pause == 1 and request.user.is_authenticated%}
-
-                'pause': pause
-
-            {% elif voice_pause == 2 %}
-
-                {% if request.user.voice_pause.has %}
-                
-                    'pause': pause
-                
-                {% endif %}
-
-            {% endif %}
+            // {% endif %}
+            // {% endif %}
         };
 
         annyang.addCommands(commands);
@@ -171,6 +199,24 @@
         })
 
     }
+
+    function mobileSize(x) {
+        if (x.matches) {
+            arrow.style.display = "flex";
+        } else {
+            arrow.style.display = "none";
+        }
+    }
+
+    var x = window.matchMedia("(max-width: 767px)")
+    mobileSize(x)
+    x.addListener(mobileSize)
+
+
+    $(arrow).click(function () {
+        $(arrow).toggleClass('flip');
+        $(".description").toggle();
+    });
 </script>
 
 {% endblock script %}

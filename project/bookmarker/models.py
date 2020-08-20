@@ -65,6 +65,15 @@ class VoicePause(models.Model):
         return self.user.username
 
 
+class VoicePlay(models.Model):
+    user = models.OneToOneField(
+        User, related_name='voice_play', on_delete=models.CASCADE)
+    has = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username
+
+
 class UserVideo(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="videos")

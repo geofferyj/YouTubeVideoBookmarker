@@ -288,6 +288,40 @@ class ActivateVoicePause(View):
             return redirect(url)
 
 
+class ActivateVoicePlay(View):
+
+    def get(self, request, *args, **kwargs):
+        video_id: str = request.GET['v'][-11:]
+        return redirect(reverse('index') + f'?v={video_id}')    
+    
+    def post(self, request, *args, **kwargs):
+        user: User = request.user
+        video_id: str = request.POST['v'][-11:]
+
+        if user.is_authenticated:
+
+            if user.tokens.amount:
+                user.tokens.amount -= 1
+                user.tokens.save()
+                user.voice_play.has = True
+                user.voice_play.save()
+                messages.success(request, "Voice Play activated")
+
+                # build a path to redirect to if post operation is complete
+                url: str = f"{request.path_info}?v={video_id}"
+                return redirect(url)
+            else:
+                messages.error(request, "You don't have enough tokens, buy more")
+                # build a path to redirect to if post operation is complete
+                url: str = f"{request.path_info}?v={video_id}"
+                return redirect(url)
+        else:
+            messages.error(request, "you need to be logged in to use this feature")
+            # build a path to redirect to if post operation is complete
+            url: str = f"{request.path_info}?v={video_id}"
+            return redirect(url)
+
+
 class StoreView(View):
     def get(self, request, *args, **kwargs):
         price: dict = {'token': settings.TOKEN_PRICE,

@@ -38,6 +38,9 @@ class Index(View):
         # if the request has a video id query parameter
         if request.GET.get('v'):
 
+            if not request.session.has_key('auto_pause'):
+                request.session['auto_pause'] = True
+  
             video_id: str = request.GET['v'][-11:]
             user: User = request.user
             self.description = get_video_details(video_id).get('description')
@@ -328,6 +331,21 @@ class StoreView(View):
                  'subscription': settings.SUBSCRIPTION_PRICE}
         return render(request, "bookmarker/store.html", {'price': price})
 
+class SetAutoPauseView(View):
+    def get(self, request, *args, **kwargs):
+        request.session['auto_pause'] = True
+        video_id: str = request.GET.get('v')
+        if video_id:
+            video_id = video_id[-11:]
+        return redirect(reverse('index') + f'?v={video_id}')
+
+class SetManualPauseView(View):
+    def get(self, request, *args, **kwargs):
+        request.session['auto_pause'] = False
+        video_id: str = request.GET.get('v')[-11:]
+        if video_id:
+            video_id = video_id[-11:]
+        return redirect(reverse('index') + f'?v={video_id}')
 
 # /
 # simply redirects all request to this route to the /watch route

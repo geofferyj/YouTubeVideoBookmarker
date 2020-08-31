@@ -1,5 +1,5 @@
 from django.urls import path, include
-from bookmarker.views import Index, red, Count, StoreView, BuyToken, Subscribe, IndexBeta, ActivateVoicePause, ActivateVoicePlay
+from bookmarker.views import Index, red, Count, StoreView, BuyToken, Subscribe, IndexBeta, ActivateVoicePause, ActivateVoicePlay, SetAutoPauseView, SetManualPauseView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -13,6 +13,9 @@ urlpatterns = [
     path('subscribe/', Subscribe.as_view(), name="subscribe"),
     path('activate_voice_pause/', ActivateVoicePause.as_view(), name="activate_voice_pause"),
     path('activate_voice_play/', ActivateVoicePlay.as_view(), name="activate_voice_play"),
+    path('auto_pause/', SetAutoPauseView.as_view(), name="auto_pause"),
+    path('manual_pause/', SetManualPauseView.as_view(), name="manual_pause"),
+    
 
 
 

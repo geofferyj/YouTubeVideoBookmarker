@@ -36,12 +36,21 @@
         {% endif %}
 
         <div class="controls">
-            <div class="manual-controls">
-                <button class="btn-d btn-red-small text-bold">
+            <div id="manual-controls" class="manual-controls">
+                <button data-toggle="popover" title="Control Options" data-placement="bottom" class="btn btn-d btn-red-small text-bold" >
                     Control Options&nbsp; &nbsp;
                 </button>
-                <button class="btn-d btn-grey-small">Auto-Pause</button>
-                <button class="btn-d btn-grey-small">Manual</button>
+                <button form="auto_pause_form" id="auto-pause" class="btn btn-d btn-grey-small" {% if request.session.auto_pause %}style="background-color: red; color: white;"{% endif %}>Auto-Pause</button>
+                <button form="manual_pause_form" id="manual-pause" class="btn btn-d btn-grey-small" {% if not request.session.auto_pause %}style="background-color: red; color: white;"{% endif %}>Manual</button>
+
+                <form id="auto_pause_form" action="{% url 'auto_pause' %}">
+                    <input type="hidden" name="v" value="{{video.vid}}">
+                </form>
+
+                <form id="manual_pause_form" action="{% url 'manual_pause' %}">
+                    <input type="hidden" name="v" value="{{video.vid}}">
+                </form>
+
             </div>
 
             {% if not beta%}
@@ -66,8 +75,8 @@
                     </button>
                 </form>
 
-                {% endif %}   
-                
+                {% endif %}
+
 
                 {% if request.user.voice_pause.has %}
 
@@ -86,8 +95,6 @@
                 </form>
 
                 {% endif %}
-
-
 
             </div>
             {% endif %}
@@ -139,6 +146,26 @@
         </div>
     </div>
 </div>
+
+
+<div id="popover-content" style="display: none">
+    <p>Play Commands</p>
+    <ul class="list-group">
+        <li class="list-group-item">Play</li>
+        <li class="list-group-item">Resume</li>
+        <li class="list-group-item">Continue</li>
+        <li class="list-group-item">Unpause</li>
+
+    </ul>
+
+    <p>Pause Commands</p>
+    <ul class="list-group">
+        <li class="list-group-item">Pause</li>
+    </ul>
+
+
+</div>
+
 {% endblock main %}
 {% block script %}
 
@@ -146,6 +173,16 @@
     var stamp_display_field = document.getElementById('stamp_display')
     var edit_stamp = document.getElementById('edit-stamp')
     var stamp_edit_field = document.getElementById('timestamps')
+    $(document).ready(function () {
+        $('[data-toggle="popover"]').popover({
+            html: true,
+            content: function () {
+                return $('#popover-content').html();
+            }
+        });
+    });
+
+
     const arrow = document.querySelector(".fa-arrow-down")
     edit_stamp.addEventListener("input", () => {
         if (edit_stamp.checked) {
@@ -170,8 +207,9 @@
 
     }
 
-
+{% if request.session.auto_pause %}
     if (annyang) {
+        console.log("it works!")
         var commands = {
             'play': play,
             'continue': play,
@@ -196,6 +234,8 @@
         annyang.start()
 
     }
+
+{% endif %}
 
     function mobileSize(x) {
         if (x.matches) {

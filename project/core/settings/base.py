@@ -90,7 +90,7 @@ USE_L10N = True
 
 USE_TZ = False
 
-YOUTUBE_DATA_API_KEY = 'AIzaSyBnD826tz_SelYOn6FtJHGPeGqMMKiIjuI'
+YOUTUBE_DATA_API_KEY = ''
 # LOGIN_REDIRECT_URL = 'admin_page'
 # LOGOUT_REDIRECT_URL = 'index'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -101,8 +101,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
 MAILER_EMAIL_BACKEND = EMAIL_BACKEND  
 EMAIL_HOST = 'smtp.gmail.com'  
-EMAIL_HOST_PASSWORD = 'pcfzoyfvowrfhehf'  
-EMAIL_HOST_USER = 'geofferyjdev@gmail.com'  
+EMAIL_HOST_PASSWORD = ''  
+EMAIL_HOST_USER = ''  
 EMAIL_PORT = 465 
 EMAIL_USE_SSL = True  
 
@@ -125,4 +125,4 @@ LOGIN_REDIRECT_URL = 'index'
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 
 
-GOOGLE_RECAPTCHA_SECRET_KEY = '6LcxrbAZAAAAAKhbc1l1IKfQ_OJ2MSlh1No79giD' 
+GOOGLE_RECAPTCHA_SECRET_KEY = '' 
